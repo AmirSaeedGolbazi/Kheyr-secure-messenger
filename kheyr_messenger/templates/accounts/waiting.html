@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}در انتظار تأیید{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>در انتظار تأیید مدیر</h2>
+    <p>ثبت‌نام شما انجام شد. مدیر باید حساب شما را فعال کند.</p>
+    <a href="{% url 'login' %}" class="btn-primary">بازگشت به ورود</a>
+</div>
+{% endblock %}

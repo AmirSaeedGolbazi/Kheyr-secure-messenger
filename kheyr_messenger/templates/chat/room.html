@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ room.name }}{% endblock %}
+{% block content %}
+<div class="card chat-card">
+    <div class="section-head">
+        <h2>{{ room.name }}</h2>
+        <div>
+            <button type="button" id="btn-call-group" class="btn-small">📞 تماس</button>
+            <a href="{% url 'room_list' %}" class="btn-small">بازگشت</a>
+        </div>
+    </div>
+
+    <div id="group-invite-box" style="display:none; margin-bottom:12px; padding:10px; background:#ffe5e0; border-radius:8px;">
+        <p><strong id="group-invite-from"></strong> در حال تماس است.</p>
+        <button type="button" id="group-invite-join" class="btn-primary">ورود</button>
+        <button type="button" id="group-invite-ignore" class="btn-small">بعداً</button>
+    </div>
+
+    <div id="group-call-box" style="display:none; margin-bottom:12px; background:#111; padding:8px; border-radius:8px;">
+        <div style="color:#0f0; font-size:0.8rem; margin-bottom:4px;">🔒 E2EE فعال</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div id="lk-local-box" style="width:180px;">
+                <div class="muted small" style="color:#fff;">شما</div>
+            </div>
+            <div id="lk-remote-container" style="flex:1; display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </div>
+        <div style="margin-top:8px; color:#fff; display:flex; gap:8px;">
+            <button type="button" id="group-toggle-mic" class="btn-small">🎤 میک</button>
+            <button type="button" id="group-toggle-cam" class="btn-small">📷 دوربین</button>
+            <button type="button" id="group-hangup" class="btn-primary">قطع</button>
+        </div>
+    </div>
+
+    <div id="reenter-pwd" style="display:none; margin-bottom:12px;">
+        <p class="muted">رمز اصلی خود را وارد کنید:</p>
+        <div class="chat-input-row">
+            <input type="password" id="reenter-pwd-input" placeholder="رمز اصلی">
+            <button type="button" id="reenter-pwd-btn" class="btn-primary">ادامه</button>
+        </div>
+    </div>
+
+    <div id="chat-log" class="chat-log"></div>
+    <div id="upload-progress" class="muted small" style="display:none"></div>
+
+    <div class="chat-input-row" id="chat-input-row" style="display:none;">
+        <input type="file" id="chat-file" style="display:none" accept="*/*">
+        <button type="button" id="chat-attach" class="btn-small">📎</button>
+        <input type="text" id="chat-input" placeholder="پیام…" autocomplete="off">
+        <button id="chat-send" class="btn-primary">ارسال</button>
+    </div>
+
+    <p class="muted small">
+        پیام‌ها، فایل‌ها و تماس‌ها End-to-End رمزنگاری می‌شوند.
+    </p>
+</div>
+{{ room_json|json_script:"room-data" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/livekit-client@2.5.7/dist/livekit-client.umd.min.js"></script>
+<script src="{% static 'js/tweetnacl.min.js' %}"></script>
+<script src="{% static 'js/crypto.js' %}"></script>
+<script src="{% static 'js/keydb.js' %}"></script>
+<script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/livekit_e2ee.js' %}"></script>
+<script src="{% static 'js/chat.js' %}"></script>
+{% endblock %}

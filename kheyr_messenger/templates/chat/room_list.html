@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}گروه‌ها{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="section-head">
+        <h2>گروه‌های شما</h2>
+        <a href="{% url 'create_group' %}" class="btn-small">+ گروه جدید</a>
+    </div>
+    {% if rooms %}
+    <ul class="room-list">
+        {% for r in rooms %}
+        <li><a href="{% url 'room_detail' r.id %}">
+            {% if r.is_group %}👥{% else %}💬{% endif %} {{ r.name }}
+        </a></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted">هنوز در گروهی عضو نیستید.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="section-head"><h2>شروع چت خصوصی</h2></div>
+    <ul class="room-list">
+        {% for u in others %}
+        <li><a href="{% url 'start_private' u.username %}">💬 {{ u.username }}</a></li>
+        {% empty %}
+        <li class="muted">کاربر دیگری نیست.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% if show_create %}
+<div class="card">
+    <h2>ساخت گروه جدید</h2>
+    <form method="post" action="{% url 'create_group' %}">
+        {% csrf_token %}
+        <label>نام گروه<input type="text" name="name" required></label>
+        <fieldset>
+            <legend>اعضا</legend>
+            {% for u in others %}
+            <label class="check"><input type="checkbox" name="members" value="{{ u.id }}"> {{ u.username }}</label>
+            {% endfor %}
+        </fieldset>
+        <button type="submit" class="btn-primary">ساخت</button>
+    </form>
+</div>
+{% endif %}
+{% endblock %}

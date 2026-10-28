@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Django
+db.sqlite3
+db.backup.sqlite3
+*.log
+staticfiles/
+kheyr_messenger/media/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / local
+.env
+*.env
+
+# LiveKit binaries
+livekit/*.exe
+livekit/*.dll
+livekit/*.so
+livekit/*.dylib

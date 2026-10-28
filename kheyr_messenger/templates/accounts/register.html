@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ثبت‌نام{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>ثبت‌نام در پیام‌رسان</h2>
+    <p class="muted">
+        نام کاربری و دو رمز انتخاب کنید. پس از تأیید مدیر می‌توانید وارد شوید.<br>
+        <strong>رمز دوم</strong> رمز امنیتی است: اگر آن را وارد کنید، همه پیام‌ها و فایل‌ها برای همه پاک می‌شود.<br>
+        <strong>مهم:</strong> اگر رمز اصلی را فراموش کنید، پیام‌های قبلی برای همیشه ناخوانا می‌شوند. هیچ‌کس نمی‌تواند بازیابی کند.
+    </p>
+    <form method="post" id="register-form" autocomplete="off">
+        {% csrf_token %}
+        <label>نام کاربری<input type="text" name="username" required pattern="[a-zA-Z0-9_]+"></label>
+        <label>رمز اصلی<input type="password" id="pwd1" required minlength="6"></label>
+        <label>رمز دوم (امنیتی)<input type="password" id="pwd2" required minlength="6"></label>
+        <input type="hidden" name="auth_hash" id="auth_hash_field">
+        <input type="hidden" name="duress_hash" id="duress_hash_field">
+        <input type="hidden" name="public_key" id="public_key_field">
+        <input type="hidden" name="crypto_salt" id="crypto_salt_field">
+        <button type="submit" class="btn-primary">ثبت‌نام</button>
+    </form>
+    <p class="muted">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">ورود</a></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/tweetnacl.min.js' %}"></script>
+<script src="{% static 'js/crypto.js' %}"></script>
+<script src="{% static 'js/keydb.js' %}"></script>
+<script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/auth.js' %}"></script>
+{% endblock %}

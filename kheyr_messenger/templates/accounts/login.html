@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}ورود{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>ورود به پیام‌رسان</h2>
+    <form method="post" id="login-form" autocomplete="off">
+        {% csrf_token %}
+        <label>نام کاربری<input type="text" name="username" id="login-username" required></label>
+        <label>رمز<input type="password" id="login-pwd" required></label>
+        <input type="hidden" name="password" id="login-auth-hash">
+        <button type="submit" class="btn-primary">ورود</button>
+    </form>
+    <p class="muted">حساب ندارید؟ <a href="{% url 'register' %}">ثبت‌نام</a></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/tweetnacl.min.js' %}"></script>
+<script src="{% static 'js/crypto.js' %}"></script>
+<script src="{% static 'js/keydb.js' %}"></script>
+<script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/auth.js' %}"></script>
+{% endblock %}

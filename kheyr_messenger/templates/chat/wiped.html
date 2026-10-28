@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}پاک‌سازی انجام شد{% endblock %}
+{% block content %}
+<div class="card">
+    <h2>ورود انجام شد</h2>
+    <p>پیام‌ها و فایل‌های ارسالی در تمام گروه‌ها و چت‌های خصوصی پاک شدند.</p>
+    <a href="{% url 'room_list' %}" class="btn-primary">ادامه</a>
+</div>
+{% endblock %}

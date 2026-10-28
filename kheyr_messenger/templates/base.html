@@ -1,0 +1,43 @@
+{% load static pwa %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#c0392b" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <title>{% block title %}پیام‌رسان خیر{% endblock %}</title>
+    {% progressive_web_app_meta %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-title">
+            <a href="{% url 'room_list' %}">پیام‌رسان خیر</a>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="header-actions">
+            <span class="username">{{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="btn-small">خروج</a>
+        </div>
+        {% endif %}
+    </header>
+    <main class="app-main">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <script>
+        window.APP = {
+            me: {
+                id: {{ user.id|default:'null' }},
+                username: "{{ user.username|escapejs|default:'' }}"
+            }
+        };
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
