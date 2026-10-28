@@ -1,12 +1,14 @@
 markdown
 # Kheyr Secure Messenger | پیام‌رسان امن خیر
 
-**A web-based End-to-End encrypted messenger built with Django, WebRTC, and LiveKit.**
-**یک پیام‌رسان تحت وب با رمزنگاری End-to-End، ساخته‌شده با Django، WebRTC و LiveKit.**
+<p align="center">
+  <b>A web-based End-to-End encrypted messenger built with Django, WebRTC, and LiveKit.</b><br>
+  <b>یک پیام‌رسان تحت وب با رمزنگاری End-to-End، ساخته‌شده با Django، WebRTC و LiveKit.</b>
+</p>
 
 ---
 
-## English
+## 🌐 English
 
 ### Overview
 
@@ -14,19 +16,19 @@ markdown
 
 ### Features
 
-- End-to-End encryption for text messages (NaCl Box: X25519 + XSalsa20-Poly1305)
-- Encrypted file sharing (images, videos, documents)
-- Group voice/video calls with LiveKit + E2EE
-- Groups and private chats
-- Registration with username + primary password + duress password
-- Admin approval for new accounts
-- Duress password: entering it wipes all messages and files for everyone (the messenger itself survives)
-- Auto-lock after 10 minutes of inactivity
-- Auto-logout when the browser closes
-- Code integrity check (SHA-256) to detect tampering
-- PWA (Add to Home Screen)
-- Automatic dark mode based on system settings
-- Responsive design (mobile + desktop)
+- 🔒 **End-to-End encryption** for text messages (NaCl Box: X25519 + XSalsa20-Poly1305)
+- 📎 **Encrypted file sharing** (images, videos, documents)
+- 📞 **Group voice/video calls** with LiveKit + E2EE
+- 👥 **Groups and private chats**
+- 🔑 **Registration with username + primary password + duress password**
+- ✅ **Admin approval** for new accounts
+- 💣 **Duress password**: entering it wipes all messages and files for everyone (the messenger itself survives)
+- ⏱️ **Auto-lock** after 10 minutes of inactivity
+- 🚪 **Auto-logout** when the browser closes
+- 🛡️ **Code integrity check** (SHA-256) to detect tampering
+- 📱 **PWA** (Add to Home Screen)
+- 🌓 **Automatic dark mode** based on system settings
+- 📐 **Responsive design** (mobile + desktop)
 
 ### Cryptography
 
@@ -39,9 +41,9 @@ markdown
 | AES key exchange | NaCl Box (X25519 + XSalsa20-Poly1305) |
 | Voice/video calls | WebRTC (DTLS-SRTP) + LiveKit E2EE |
 
-**Critical:** the user's private key is never stored on the server. It's derived from the password and kept only in the browser's IndexedDB. Closing the browser or 10 minutes of inactivity wipes it.
+**Critical:** the user's private key is **never stored on the server**. It's derived from the password and kept only in the browser's IndexedDB. Closing the browser or 10 minutes of inactivity wipes it.
 
-> **If a user forgets their primary password, previous messages become permanently unreadable.** No one — not the admin, not the host — can recover them.
+> ⚠️ **If a user forgets their primary password, previous messages become permanently unreadable.** No one — not the admin, not the host — can recover them.
 
 ### Prerequisites
 
@@ -81,7 +83,7 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py build_integrity
 6. (Optional) Install LiveKit for group calls
-Download livekit-server-windows-amd64.zip (or Linux/macOS) from the LiveKit GitHub Releases page and extract it into the livekit/ folder.
+Download livekit-server-windows-amd64.zip (or Linux/macOS) from GitHub Releases and extract it into the livekit/ folder.
 
 bash
 cd livekit
@@ -119,7 +121,7 @@ Click a user → check Active → Save.
 
 Or use Action → Activate selected users for bulk approval.
 
-Admins cannot change users' passwords. This is intentional.
+⚠️ Admins cannot change users' passwords. This is intentional.
 
 Chatting
 New group: /rooms/ → "+ New group".
@@ -127,7 +129,7 @@ New group: /rooms/ → "+ New group".
 Private chat: /rooms/ → click a username.
 
 Calling
-In a group page, click the Call button.
+In a group page, click 📞 Call.
 
 All online members receive an invite and can join.
 
@@ -138,7 +140,7 @@ Go to /accounts/login/.
 
 Instead of the primary password, enter the duress password.
 
-All messages and files for all users are wiped (the messenger and user accounts survive).
+⚠️ All messages and files for all users are wiped (the messenger and user accounts survive).
 
 Security Model
 What is protected
@@ -148,7 +150,7 @@ Admin resets a user's password	A new private key is generated. Previous messages
 Host with DB access	Same as admin.
 Physical device access	Auto-lock + logout on browser close.
 Code tampering	SHA-256 integrity check.
-What is NOT protected
+What is not protected
 Threat	Why
 Host with SSH access modifies the code	The code is served from the server; server-side tampering cannot be prevented in a web app.
 MITM on HTTPS with a forged certificate	Requires HSTS + Certificate Pinning in production.
@@ -185,46 +187,46 @@ kheyr/
 ├── livekit/               # LiveKit server
 └── .gitignore
 Credits
-Django: https://www.djangoproject.com/
+Django
 
-Django Channels: https://channels.readthedocs.io/
+Django Channels
 
-LiveKit: https://livekit.io/
+LiveKit
 
-tweetnacl-js: https://github.com/dchest/tweetnacl-js
+tweetnacl-js
 
-Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
+Web Crypto API
 
-فارسی
+🇮🇷 فارسی
 معرفی
 خیر یک پیام‌رسان خودمیزبان با اولویت حریم خصوصی است. تمام پیام‌ها، فایل‌ها و تماس‌های صوتی/تصویری در مرورگر به‌صورت End-to-End رمزنگاری می‌شوند. سرور (ادمین یا هاستر) هرگز نمی‌تواند محتوا را بخواند — حتی با دسترسی کامل به دیتابیس.
 
 امکانات
-رمزنگاری End-to-End پیام‌های متنی (NaCl Box: X25519 + XSalsa20-Poly1305)
+🔒 رمزنگاری End-to-End پیام‌های متنی (NaCl Box: X25519 + XSalsa20-Poly1305)
 
-ارسال فایل رمزنگاری‌شده (عکس، ویدیو، سند)
+📎 ارسال فایل رمزنگاری‌شده (عکس، ویدیو، سند)
 
-تماس صوتی/تصویری گروهی با LiveKit + E2EE
+📞 تماس صوتی/تصویری گروهی با LiveKit + E2EE
 
-گروه و چت خصوصی
+👥 گروه و چت خصوصی
 
-ثبت‌نام با نام کاربری + رمز اصلی + رمز دوم
+🔑 ثبت‌نام با نام کاربری + رمز اصلی + رمز دوم
 
-تأیید حساب توسط ادمین
+✅ تأیید حساب توسط ادمین
 
-رمز دوم (Duress): با ورود آن، همه‌ی پیام‌ها و فایل‌های همه‌ی کاربران پاک می‌شوند (خود پیام‌رسان و حساب‌ها باقی می‌مانند)
+💣 رمز دوم (Duress): با ورود آن، همه‌ی پیام‌ها و فایل‌های همه‌ی کاربران پاک می‌شوند (خود پیام‌رسان و حساب‌ها باقی می‌مانند)
 
-قفل خودکار بعد از ۱۰ دقیقه بی‌فعالیتی
+⏱️ قفل خودکار بعد از ۱۰ دقیقه بی‌فعالیتی
 
-خروج خودکار با بستن مرورگر
+🚪 خروج خودکار با بستن مرورگر
 
-تشخیص دست‌کاری کد (SHA-256)
+🛡️ تشخیص دست‌کاری کد (SHA-256)
 
-PWA (افزودن به صفحه اصلی)
+📱 PWA (افزودن به صفحه اصلی)
 
-دارک مود خودکار بر اساس تنظیمات سیستم
+🌓 دارک مود خودکار بر اساس تنظیمات سیستم
 
-طراحی واکنش‌گرا (موبایل و دسکتاپ)
+📐 طراحی واکنش‌گرا (موبایل و دسکتاپ)
 
 رمزنگاری
 داده	روش
@@ -236,7 +238,7 @@ PWA (افزودن به صفحه اصلی)
 تماس صوتی/تصویری	WebRTC (DTLS-SRTP) + LiveKit E2EE
 نکته‌ی مهم: کلید خصوصی کاربر هیچ‌جای سرور ذخیره نمی‌شود. از پسورد کاربر مشتق می‌شود و فقط در حافظه‌ی مرورگر (IndexedDB) نگه داشته می‌شود. با بستن مرورگر یا ۱۰ دقیقه بی‌فعالیتی، پاک می‌شود.
 
-اگر کاربر رمز اصلی خود را فراموش کند، پیام‌های قبلی برای همیشه ناخوانا می‌شوند. هیچ‌کس — نه ادمین، نه هاستر — نمی‌تواند بازیابی کند.
+⚠️ اگر کاربر رمز اصلی خود را فراموش کند، پیام‌های قبلی برای همیشه ناخوانا می‌شوند. هیچ‌کس — نه ادمین، نه هاستر — نمی‌تواند بازیابی کند.
 
 پیش‌نیازها
 Python 3.10+
@@ -275,7 +277,7 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py build_integrity
 ۶. (اختیاری) نصب LiveKit برای تماس گروهی
-از صفحه‌ی Releases مخزن LiveKit در GitHub فایل livekit-server-windows-amd64.zip (یا لینوکس/مک) را دانلود کنید و در پوشه‌ی livekit/ استخراج کنید.
+از GitHub Releases فایل livekit-server-windows-amd64.zip (یا لینوکس/مک) را دانلود کنید و در پوشه‌ی livekit/ استخراج کنید.
 
 bash
 cd livekit
@@ -308,7 +310,7 @@ python manage.py runserver 3233
 ۳. روی کاربر کلیک کنید → تیک Active → Save.
 ۴. یا از Action → تأیید (فعال‌سازی) برای چند کاربر.
 
-ادمین نمی‌تواند پسورد کاربران را عوض کند. این عمدی است.
+⚠️ ادمین نمی‌تواند پسورد کاربران را عوض کند. این عمدی است.
 
 شروع چت
 گروه جدید: در /rooms/ → «+ گروه جدید».
@@ -316,7 +318,7 @@ python manage.py runserver 3233
 چت خصوصی: در /rooms/ → روی نام کاربر کلیک کنید.
 
 تماس
-در صفحه‌ی گروه، روی دکمه‌ی تماس کلیک کنید.
+در صفحه‌ی گروه، روی 📞 تماس کلیک کنید.
 
 همه‌ی اعضای آنلاین پیام دعوت می‌بینند و می‌توانند وارد شوند.
 
@@ -327,7 +329,7 @@ python manage.py runserver 3233
 
 به‌جای رمز اصلی، رمز دوم را وارد کنید.
 
-همه‌ی پیام‌ها و فایل‌های همه‌ی کاربران پاک می‌شوند (پیام‌رسان و کاربران باقی می‌مانند).
+⚠️ همه‌ی پیام‌ها و فایل‌های همه‌ی کاربران پاک می‌شوند (پیام‌رسان و کاربران باقی می‌مانند).
 
 مدل امنیتی
 چه چیزی محافظت شده
@@ -358,28 +360,3 @@ channels_redis به جای InMemoryChannelLayer (چون Daphne ممکن است �
 SECRET_KEY و LIVEKIT_API_SECRET از .env (نه در کد)
 
 systemd یا supervisor برای اجرای پایدار
-
-ساختار پروژه
-text
-kheyr/
-├── kheyr_messenger/
-│   ├── accounts/          # مدیریت کاربران و احراز هویت
-│   ├── chat/              # پیام‌رسان، گروه‌ها، فایل‌ها، تماس
-│   ├── kheyr_project/     # تنظیمات Django
-│   ├── static/
-│   │   ├── css/
-│   │   └── js/            # crypto.js, chat.js, livekit_e2ee.js, ...
-│   ├── templates/
-│   └── manage.py
-├── livekit/               # سرور LiveKit
-└── .gitignore
-اعتبارها
-Django: https://www.djangoproject.com/
-
-Django Channels: https://channels.readthedocs.io/
-
-LiveKit: https://livekit.io/
-
-tweetnacl-js: https://github.com/dchest/tweetnacl-js
-
-Web Crypto API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
