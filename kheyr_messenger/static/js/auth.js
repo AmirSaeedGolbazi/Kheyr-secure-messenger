@@ -1,4 +1,66 @@
 // client-side auth: password hashing, keypair derivation, form helpers
+
+// ============ چک زنده‌ی یوزرنیم ============
+(function () {
+    const usernameInput = document.getElementById('id_username');
+    const usernameFeedback = document.getElementById('username-feedback');
+    const registerSubmit = document.getElementById('reg-submit');
+    if (!usernameInput || !usernameFeedback || !registerSubmit) return;
+
+    let debounceTimer = null;
+    let lastChecked = '';
+    let usernameAvailable = true;
+
+    function setFeedback(msg, color) {
+        usernameFeedback.textContent = msg;
+        usernameFeedback.style.color = color || '';
+    }
+
+    function updateSubmit() {
+        registerSubmit.disabled = !usernameAvailable;
+        registerSubmit.style.opacity = usernameAvailable ? '1' : '0.5';
+    }
+
+    async function checkUsername() {
+        const val = usernameInput.value.trim();
+        if (!val) { setFeedback('', ''); usernameAvailable = true; updateSubmit(); return; }
+        if (val === lastChecked) return;
+        lastChecked = val;
+
+        if (!/^[a-zA-Z0-9_]+$/.test(val)) {
+            setFeedback('فقط حروف انگلیسی، اعداد و _ مجاز است.', '#c0392b');
+            usernameAvailable = false;
+            updateSubmit();
+            return;
+        }
+
+        setFeedback('در حال بررسی…', '#7a4a4a');
+        try {
+            const res = await fetch('/accounts/api/check-username/?username=' + encodeURIComponent(val));
+            const data = await res.json();
+            if (val !== usernameInput.value.trim()) return;
+            if (data.exists) {
+                setFeedback('این نام کاربری قبلاً گرفته شده است.', '#c0392b');
+                usernameAvailable = false;
+            } else {
+                setFeedback('این نام کاربری آزاد است.', '#2a7');
+                usernameAvailable = true;
+            }
+        } catch (e) {
+            setFeedback('خطا در بررسی', '#c0392b');
+            usernameAvailable = true;
+        }
+        updateSubmit();
+    }
+
+    usernameInput.addEventListener('input', function () {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(checkUsername, 300);
+    });
+
+    if (usernameInput.value.trim()) checkUsername();
+})();
+
 (function () {
     'use strict';
 
@@ -60,7 +122,7 @@
             const p1 = document.getElementById('pwd1').value;
             const p2 = document.getElementById('pwd2').value;
             if (!username || !p1 || !p2) { fail('همه‌ی فیلدها را پر کنید'); return; }
-            if (p1 !== p2) { fail('دو رمز با هم متفاوت‌اند'); return; }
+            if (p2 == p1) { fail('دو رمز باید متفاوت‌ از یکدیگر باشند'); return; }
             busy(regForm, true);
             try {
                 if (typeof nacl === 'undefined') throw new Error('tweetnacl بارگذاری نشد');

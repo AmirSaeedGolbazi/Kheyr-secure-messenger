@@ -552,3 +552,12 @@ def push_unsubscribe_api(request):
 
 def wiped(request):
     return render(request, 'chat/wiped.html')
+
+
+def check_username_api(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'available': False, 'error': 'empty'})
+    exists = CustomUser.objects.filter(username=username).exists()
+
+    return JsonResponse({'available': not exists, 'exists': exists})

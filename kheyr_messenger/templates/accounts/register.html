@@ -26,7 +26,7 @@
             <div class="field">
                 <label for="id_username">نام کاربری</label>
                 <input class="input" type="text" name="username" id="id_username" required pattern="[a-zA-Z0-9_]+" placeholder="latin letters, digits, underscore">
-                <div class="hint">فقط حروف انگلیسی، عدد و زیرخط.</div>
+                <div class="hint" id="username-feedback">فقط حروف انگلیسی، عدد و زیرخط.</div>
             </div>
             <div class="field">
                 <label for="pwd1">رمز اصلی</label>
@@ -48,7 +48,7 @@
             <input type="hidden" name="duress_hash" id="duress_hash_field">
             <input type="hidden" name="public_key" id="public_key_field">
             <input type="hidden" name="crypto_salt" id="crypto_salt_field">
-            <button type="submit" class="btn btn-primary" style="width:100%">
+            <button type="submit" class="btn btn-primary" style="width:100%" id="reg-submit">
                 <svg class="icon"><use href="#i-lock"/></svg> ثبت‌نام و ساخت کلیدها
             </button>
         </form>

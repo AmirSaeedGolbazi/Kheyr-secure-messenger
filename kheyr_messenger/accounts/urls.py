@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/profile-photos/<int:photo_id>/active/', views.profile_photo_activate, name='profile_photo_activate'),
     path('api/profile-photos/<int:photo_id>/delete/', views.profile_photo_delete, name='profile_photo_delete'),
     path('api/wipe-status/', views.wipe_status_api, name='wipe_status_api'),
+    path('api/check-username/', views.check_username_api, name='check_username_api'),
 ]

@@ -244,3 +244,9 @@ def settings_api(request):
     if rejected:
         out['rejected'] = rejected
     return JsonResponse(out)
+def check_username_api(request):
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'available': False, 'error': 'empty'})
+    exists = CustomUser.objects.filter(username=username).exists()
+    return JsonResponse({'available': not exists, 'exists': exists})

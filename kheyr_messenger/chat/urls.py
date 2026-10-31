@@ -33,4 +33,5 @@ urlpatterns = [
     path('api/room/<int:room_id>/livekit-token/<int:session_id>/', livekit_views.livekit_token_api, name='livekit_token_api'),
     path('api/room/<int:room_id>/end-call-session/<int:session_id>/', livekit_views.end_call_session_api, name='end_call_session_api'),
     path('wiped/', views.wiped, name='wiped'),
+    path('api/check-username/', views.check_username_api, name='check_username_api'),
 ]
