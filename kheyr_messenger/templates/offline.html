@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>پیام‌رسان خیر — آفلاین</title>
+<style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
+    /* Vazirmatn is precached by the service worker, so it stays available offline. */
+    @font-face{font-family:'Vazirmatn';font-style:normal;font-weight:100 900;
+        font-display:swap;src:url('/static/fonts/Vazirmatn-arabic.woff2') format('woff2')}
+    body{
+        margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;
+        font-family:'Vazirmatn',system-ui,"Segoe UI",Tahoma,sans-serif;color:#e8eaf2;background:#0b0d13;
+        background-image:radial-gradient(60% 70% at 25% 20%,#c0392b33,transparent),
+                         radial-gradient(60% 70% at 80% 15%,#4f7cff33,transparent);
+    }
+    .card{
+        max-width:420px;text-align:center;padding:44px 30px;border-radius:24px;
+        background:#141824e0;border:1px solid #ffffff1f;
+        /* box-shadow:0 24px 60px -24px #000; */
+    }
+    .orb{width:84px;height:84px;margin:0 auto 20px;border-radius:50%;
+        background:radial-gradient(circle at 35% 30%,#ff8a7a,#c0392b);}
+    h1{font-size:1.2rem;margin:0 0 10px}
+    p{font-size:.88rem;line-height:1.8;color:#9aa3b8;margin:0 0 24px}
+    a{display:inline-block;padding:11px 28px;border-radius:999px;background:#c0392b;
+        color:#fff;text-decoration:none;font-size:.9rem}
+</style>
+</head>
+<body>
+    <div class="card">
+        <div class="orb"></div>
+        <h1>به اینترنت متصل نیستید</h1>
+        <p>برای دیدن پیام‌های جدید باید آنلاین شوید. پیام‌های رمزنگاری‌شده‌ی قبلی فقط روی دستگاه شما هستند.</p>
+        <a href="/rooms/" onclick="location.reload();return true;">تلاش دوباره</a>
+    </div>
+</body>
+</html>

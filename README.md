@@ -53,8 +53,8 @@ If a user forgets their primary password, previous messages become permanently u
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/AmirSaeedGolbazi/Kheyr-secure-messenger
-cd Kheyr-secure-messenger/kheyr_messenger
+git clone https://github.com/YOUR_USERNAME/kheyr.git
+cd kheyr/kheyr_messenger
 ```
 
 #### 2. Create and activate a virtual environment
@@ -299,8 +299,8 @@ kheyr/
 #### ۱. دریافت مخزن پروژه
 
 ```bash
-git clone https://github.com/AmirSaeedGolbazi/Kheyr-secure-messenger
-cd Kheyr-secure-messenger/kheyr_messenger
+git clone https://github.com/YOUR_USERNAME/kheyr.git
+cd kheyr/kheyr_messenger
 ```
 
 #### ۲. ساخت و فعال‌سازی محیط مجازی

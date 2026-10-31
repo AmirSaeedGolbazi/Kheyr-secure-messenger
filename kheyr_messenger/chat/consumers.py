@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Room, Message, WipeEpoch
+from .models import Room, Message, WipeEpoch, MESSAGE_KINDS
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -22,7 +22,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
+        try:
+            data = json.loads(text_data)
+        except Exception:
+            return
         t = data.get('type')
 
         if t == 'chat_message':
@@ -30,16 +33,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
             iv = data.get('iv')
             encrypted_keys = data.get('encrypted_keys', {})
             file_name = data.get('file_name', '')
+            kind = data.get('kind', 'text')
+            if kind not in MESSAGE_KINDS:
+                kind = 'text'
             if not content or not iv:
                 return
-            msg = await self.save_message(content, iv, encrypted_keys, file_name)
+            if not isinstance(encrypted_keys, dict) or not encrypted_keys:
+                return    # an envelope sealed to nobody is unreadable by everyone
+            parent_id = data.get('parent_id')
+            msg = await self.save_message(content, iv, encrypted_keys, file_name, kind, parent_id)
+            if msg is None:
+                return
             await self.channel_layer.group_send(self.group_name, {
-                'type': 'broadcast',
-                'id': msg.id, 'content': content, 'iv': iv,
-                'encrypted_keys': encrypted_keys, 'file_name': file_name,
-                'file_id': None,
-                'sender_id': self.user.id, 'sender_username': self.user.username,
-                'timestamp': msg.timestamp.isoformat(),
+                'type': 'broadcast', 'payload': await self.serialize(msg),
+            })
+            from .notifications import fire_new_message_push
+            fire_new_message_push(self.room, self.user)
+            return
+
+        if t == 'typing':
+            await self.channel_layer.group_send(self.group_name, {
+                'type': 'broadcast_typing',
+                'from': self.user.id, 'from_username': self.user.username,
             })
             return
 
@@ -57,17 +72,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
     async def broadcast(self, event):
+        payload = dict(event.get('payload') or {})
+        payload['type'] = 'chat_message'
+        await self.send(text_data=json.dumps(payload))
+
+    async def broadcast_message_update(self, event):
+        payload = dict(event.get('payload') or {})
+        payload['type'] = 'message_update'
+        payload['update_type'] = event.get('update_type')
+        await self.send(text_data=json.dumps(payload))
+
+    async def broadcast_typing(self, event):
+        if event['from'] == self.user.id:
+            return    # nobody should see their own typing bubble
         await self.send(text_data=json.dumps({
-            'type': 'chat_message',
-            'id': event.get('id'),
-            'content': event.get('content', ''),
-            'iv': event.get('iv', ''),
-            'encrypted_keys': event.get('encrypted_keys', {}),
-            'file_name': event.get('file_name', ''),
-            'file_id': event.get('file_id'),
-            'sender_id': event.get('sender_id'),
-            'sender_username': event.get('sender_username'),
-            'timestamp': event.get('timestamp', ''),
+            'type': 'typing', 'from': event['from'], 'from_username': event['from_username'],
         }))
 
     async def broadcast_call_invite(self, event):
@@ -91,10 +110,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return self.room.members.filter(id=self.user.id).exists()
 
     @database_sync_to_async
-    def save_message(self, content, iv, encrypted_keys, file_name):
+    def save_message(self, content, iv, encrypted_keys, file_name, kind, parent_id):
+        parent = None
+        if parent_id:
+            parent = Message.objects.filter(id=parent_id, room_id=self.room.id).first()
         return Message.objects.create(
             room=self.room, sender=self.user,
             content=content, iv=iv,
             encrypted_keys=encrypted_keys, file_name=file_name,
+            kind=kind, parent=parent,
             epoch=WipeEpoch.current().value,
         )
+
+    @database_sync_to_async
+    def serialize(self, msg):
+        from .views import message_payload
+        return message_payload(msg)

@@ -73,6 +73,10 @@ const CryptoHelpers = {
 
         const myKeyPair = window.__MY_KEYPAIR;
         if (!myKeyPair) throw new Error('جفت‌کلید شما آماده نیست');
+        /* sealing to nobody would store ciphertext no member can ever open */
+        if (!Object.keys(memberPublicKeys || {}).length) {
+            throw new Error('کلید اعضا در دسترس نیست — دوباره وارد شوید');
+        }
 
         const senderPubB64 = this.publicKeyToB64(myKeyPair.publicKey);
         const encrypted_keys = {};
@@ -123,7 +127,7 @@ const CryptoHelpers = {
         }
     },
 
-    async encryptFileForMembers(file, memberPublicKeys) {
+    async encryptFileForMembers(file, memberPublicKeys, meta, caption) {
         const buf = await file.arrayBuffer();
         const aesKey = await crypto.subtle.generateKey(
             { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']
@@ -132,8 +136,35 @@ const CryptoHelpers = {
         const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, buf);
         const rawAes = new Uint8Array(await crypto.subtle.exportKey('raw', aesKey));
 
+        /* the caption rides the same per-file key as the attachment, so it uses
+           the message's own content/iv columns and needs no extra envelope */
+        let text = null, text_iv = null;
+        if (caption) {
+            const tiv = crypto.getRandomValues(new Uint8Array(12));
+            const tct = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv: tiv }, aesKey, this.enc.encode(caption)
+            );
+            text = this.b64(new Uint8Array(tct));
+            text_iv = this.b64(tiv);
+        }
+
+        /* the tag sidecar is sealed with the same per-file key, so a member who
+           can open the audio can open its tags and nobody else can */
+        let meta_enc = null;
+        if (meta) {
+            const miv = crypto.getRandomValues(new Uint8Array(12));
+            const mct = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv: miv }, aesKey, new TextEncoder().encode(JSON.stringify(meta))
+            );
+            meta_enc = { v: 1, iv: this.b64(miv), data: this.b64(new Uint8Array(mct)) };
+        }
+
         const myKeyPair = window.__MY_KEYPAIR;
         if (!myKeyPair) throw new Error('جفت‌کلید شما آماده نیست');
+        /* sealing to nobody would store ciphertext no member can ever open */
+        if (!Object.keys(memberPublicKeys || {}).length) {
+            throw new Error('کلید اعضا در دسترس نیست — دوباره وارد شوید');
+        }
 
         const senderPubB64 = this.publicKeyToB64(myKeyPair.publicKey);
         const encrypted_keys = {};
@@ -151,20 +182,36 @@ const CryptoHelpers = {
             blob: new Blob([ct], { type: 'application/octet-stream' }),
             iv: this.b64(iv),
             encrypted_keys,
+            meta_enc,
+            text, text_iv,
         };
     },
 
-    async decryptFile(ctBuf, ivB64, ek, myKeyPair) {
-        if (!ek.sender_pub) throw new Error('پیام قدیمی — sender_pub ندارد');
+    unboxAesKey(ek, myKeyPair) {
+        if (!ek || !ek.sender_pub) throw new Error('پیام قدیمی — sender_pub ندارد');
         const theirPub = this.publicKeyFromB64(ek.sender_pub);
         const theirNonce = new Uint8Array(this.unb64(ek.nonce));
         const boxed = new Uint8Array(this.unb64(ek.box));
         const rawAes = nacl.box.open(boxed, theirNonce, theirPub, myKeyPair.secretKey);
         if (!rawAes) throw new Error('box.open ناموفق');
-        const aesKey = await crypto.subtle.importKey('raw', rawAes, 'AES-GCM', false, ['decrypt']);
+        return crypto.subtle.importKey('raw', rawAes, 'AES-GCM', false, ['decrypt']);
+    },
+
+    async decryptFile(ctBuf, ivB64, ek, myKeyPair) {
+        const aesKey = await this.unboxAesKey(ek, myKeyPair);
         return crypto.subtle.decrypt(
             { name: 'AES-GCM', iv: new Uint8Array(this.unb64(ivB64)) },
             aesKey, ctBuf
         );
+    },
+
+    /* the tag block sealed beside an audio file, opened with the same file key */
+    async openMeta(env, ek, myKeyPair) {
+        const aesKey = await this.unboxAesKey(ek, myKeyPair);
+        const pt = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: new Uint8Array(this.unb64(env.iv)) },
+            aesKey, new Uint8Array(this.unb64(env.data))
+        );
+        return JSON.parse(this.dec.decode(pt));
     },
 };

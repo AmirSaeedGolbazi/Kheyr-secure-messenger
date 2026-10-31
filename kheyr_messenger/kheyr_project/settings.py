@@ -41,6 +41,7 @@ TEMPLATES = [{
             'django.template.context_processors.request',
             'django.contrib.auth.context_processors.auth',
             'django.contrib.messages.context_processors.messages',
+            'accounts.context_processors.ui_prefs',
         ],
     },
 }]
@@ -70,6 +71,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'kheyr_project.storage.VersionedStaticStorage'},
+}
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -82,7 +87,7 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-CCSRF_TRUSTED_ORIGINS = [
+CSRF_TRUSTED_ORIGINS = [
     'http://localhost', 'http://127.0.0.1',
     'http://localhost:8080', 'http://127.0.0.1:8080',
     'http://localhost:3233', 'http://127.0.0.1:3233',
@@ -106,6 +111,7 @@ PWA_APP_ICONS_APPLE = [
 ]
 PWA_APP_DIR = 'rtl'
 PWA_APP_LANG = 'fa'
+PWA_SERVICE_WORKER_PATH = str(BASE_DIR / 'static' / 'sw.js')
 
 LIVEKIT_API_KEY = 'devkey'
 LIVEKIT_API_SECRET = 'wWfMcq-NM0zQuvQPEnLdY6Pc_YXyfguzjyqkTqNuw0I'

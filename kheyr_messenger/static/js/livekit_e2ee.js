@@ -2,7 +2,7 @@ const GroupCallE2EE = {
     room: null, active: false, callSessionId: null,
     onStateChange: null,
 
-    async join({ token, url, encryptedKeyObj, myKeyPair, callSessionId,
+    async join({ token, url, encryptedKeyObj, myKeyPair, callSessionId, video = false,
                  onStateChange, onParticipantsChange }) {
         this.onStateChange = onStateChange || (() => {});
         this.callSessionId = callSessionId;
@@ -46,10 +46,30 @@ const GroupCallE2EE = {
         this.active = true;
 
         try {
-            await this.room.localParticipant.enableCameraAndMicrophone();
+            const p = this.room.localParticipant;
+            await p.setMicrophoneEnabled(true);
+            if (video) await p.setCameraEnabled(true);
+            this._attachLocal(p);
         } catch (e) { console.warn(e); }
 
         this.onStateChange('connected');
+    },
+
+    _attachLocal(p) {
+        const box = document.getElementById('lk-local-box');
+        if (!box) return;
+        box.querySelectorAll('audio,video').forEach((el) => el.remove());
+        for (const pub of p.getTrackPublications()) {
+            const t = pub.track;
+            if (t && (t.source === 'camera' || t.source === 'microphone')) {
+                const el = t.attach();
+                el.style.width = '100%';
+                el.style.borderRadius = '6px';
+                el.style.background = '#000';
+                if (el.tagName === 'VIDEO') el.style.transform = 'scaleX(-1)';
+                box.appendChild(el);
+            }
+        }
     },
 
     _attachTrack(track, participant) {
@@ -76,18 +96,18 @@ const GroupCallE2EE = {
         const c = document.getElementById('lk-remote-container');
         if (c) c.innerHTML = '';
         const lb = document.getElementById('lk-local-box');
-        if (lb) lb.innerHTML = '';
+        if (lb) lb.querySelectorAll('audio,video').forEach((el) => el.remove());
         this.onStateChange('idle');
     },
 
     toggleMic() {
         if (!this.room || !this.room.localParticipant) return;
         const p = this.room.localParticipant;
-        p.setMicrophoneEnabled(!p.isMicrophoneEnabled);
+        p.setMicrophoneEnabled(!p.isMicrophoneEnabled).then(() => this._attachLocal(p));
     },
     toggleCam() {
         if (!this.room || !this.room.localParticipant) return;
         const p = this.room.localParticipant;
-        p.setCameraEnabled(!p.isCameraEnabled);
+        p.setCameraEnabled(!p.isCameraEnabled).then(() => this._attachLocal(p));
     },
 };

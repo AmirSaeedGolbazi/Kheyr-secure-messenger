@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}پاک‌سازی انجام شد{% endblock %}
+{% block title %}پاک شد{% endblock %}
+{% block chrome %}{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>ورود انجام شد</h2>
-    <p>پیام‌ها و فایل‌های ارسالی در تمام گروه‌ها و چت‌های خصوصی پاک شدند.</p>
-    <a href="{% url 'room_list' %}" class="btn-primary">ادامه</a>
+<div class="status-wrap">
+    <div class="status-card glass r-xl danger">
+        <div class="status-orb"></div>
+        <h2>داده‌ها پاک شدند</h2>
+        <p class="muted">همه پیام‌ها، فایل‌ها و کلیدها با درخواست امنیتی پاک شد. برای ادامه باید دوباره وارد شوید.</p>
+        <a class="btn btn-primary" href="{% url 'login' %}">ورود دوباره</a>
+    </div>
 </div>
 {% endblock %}

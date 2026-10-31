@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}تنظیمات{% endblock %}
+{% block body_class %}page-settings{% endblock %}
+{% block content %}
+<div class="settings-shell">
+
+    <nav class="settings-nav glass" aria-label="بخش‌های تنظیمات">
+        <button type="button" class="active" data-panel="appearance"><svg class="icon"><use href="#i-droplet"/></svg> ظاهر</button>
+        <button type="button" data-panel="chat"><svg class="icon"><use href="#i-chat"/></svg> گفتگو</button>
+        <button type="button" data-panel="notify"><svg class="icon"><use href="#i-bell"/></svg> اعلان‌ها</button>
+        <button type="button" data-panel="perf"><svg class="icon"><use href="#i-zap"/></svg> عملکرد</button>
+        <button type="button" data-panel="security"><svg class="icon"><use href="#i-lock"/></svg> امنیت</button>
+        <button type="button" data-panel="account"><svg class="icon"><use href="#i-user"/></svg> حساب</button>
+    </nav>
+
+    <div class="settings-panels">
+
+        <!-- ============ appearance ============ -->
+        <section class="settings-panel active card" data-panel="appearance">
+            <div class="section-head"><h2>ظاهر</h2></div>
+
+            <div class="set-group">
+                <h3>پوسته</h3>
+                <div class="set-row">
+                    <div class="txt"><div class="k">حالت نمایش</div><div class="d">تاریک برای چشم راحت‌تر؛ «خودکار» از تنظیمات سیستم پیروی می‌کند.</div></div>
+                    <div class="ctl">
+                        <div class="segmented" data-setting="theme">
+                            <button type="button" data-v="dark"><svg class="icon"><use href="#i-moon"/></svg></button>
+                            <button type="button" data-v="light"><svg class="icon"><use href="#i-sun"/></svg></button>
+                            <button type="button" data-v="auto"><svg class="icon"><use href="#i-zap"/></svg></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="set-row">
+                    <div class="txt"><div class="k">رنگ تأکیدی</div><div class="d">رنگ اصلی دکمه‌ها، حباب‌ها و والپیپر.</div></div>
+                    <div class="ctl">
+                        <div class="swatches" data-setting="accent">
+                            <button type="button" class="swatch" data-v="#c0392b" style="background:#c0392b"></button>
+                            <button type="button" class="swatch" data-v="#4f7cff" style="background:#4f7cff"></button>
+                            <button type="button" class="swatch" data-v="#7c5cff" style="background:#7c5cff"></button>
+                            <button type="button" class="swatch" data-v="#12b8a3" style="background:#12b8a3"></button>
+                            <button type="button" class="swatch" data-v="#f39c12" style="background:#f39c12"></button>
+                            <button type="button" class="swatch" data-v="#e84393" style="background:#e84393"></button>
+                            <button type="button" class="swatch" data-v="#2ecc71" style="background:#2ecc71"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="set-group">
+                <h3>شیشه‌ای مایع (Liquid Glass)</h3>
+                <div class="set-row">
+                    <div class="txt"><div class="k">افکت شیشه‌ای</div><div class="d">محو و اشباع پشت پنل‌ها. خاموش کردن آن باتری را صرفه‌جویی می‌کند.</div></div>
+                    <div class="ctl"><label class="switch"><input type="checkbox" data-setting="glass"><span class="track"><span class="thumb"></span></span></label></div>
+                </div>
+                <div class="set-row">
+                    <div class="txt"><div class="k">شدت محو (Blur)</div><div class="d" id="blur-val-label">18px</div></div>
+                    <div class="ctl"><input type="range" min="0" max="40" step="2" data-setting="blur_strength" id="set-blur"></div>
+                </div>
+                <div class="set-row">
+                    <div class="txt"><div class="k">والپیپر</div><div class="d">پس‌زمینه‌ی متحرک؛ «ساده» کم‌مصرف‌ترین است.</div></div>
+                </div>
+                <div class="wall-grid" data-setting="wallpaper" style="padding:0 6px var(--s-3)">
+                    <button type="button" class="wall-tile" data-v="mesh">مش</button>
+                    <button type="button" class="wall-tile" data-v="aurora">شفق</button>
+                    <button type="button" class="wall-tile" data-v="dunes">تپه</button>
+                    <button type="button" class="wall-tile" data-v="plain">ساده</button>
+                </div>
+            </div>
+
+            <div class="set-group">
+                <h3>قيافه‌بندی</h3>
+                <div class="set-row">
+                    <div class="txt"><div class="k">اندازه متن</div><div class="d" id="fs-val-label">100%</div></div>
+                    <div class="ctl"><input type="range" min="80" max="140" step="5" data-setting="font_scale" id="set-fs"></div>
+                </div>
+                <div class="set-row">
+                    <div class="txt"><div class="k">تراکم</div><div class="d">فاصله‌ی آیتم‌ها در لیست‌ها و کارت‌ها.</div></div>
+                    <div class="ctl">
+                        <div class="segmented" data-setting="density">
+                            <button type="button" data-v="compact">فشرده</button>
+                            <button type="button" data-v="comfy">متوسط</button>
+                            <button type="button" data-v="cozy">راحت</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="set-row">
+                    <div class="txt"><div class="k">گوشه حباب پیام</div><div class="d"></div></div>
+                    <div class="ctl">
+                        <div class="segmented" data-setting="bubble_style">
+                            <button type="button" data-v="rounded">گرد</button>
+                            <button type="button" data-v="pill">کپسولی</button>
+                            <button type="button" data-v="sharp">تیز</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ chat ============ -->
+        <section class="settings-panel card" data-panel="chat">
+            <div class="section-head"><h2>گفتگو</h2></div>
+            <div class="set-row">
+                <div class="txt"><div class="k">ارسال با Enter</div><div class="d">با Shift+Enter خط جدید ساخته می‌شود.</div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="enter_to_send"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">پیش‌نمایش پیام در لیست</div><div class="d">رمزگشایی در مرورگر انجام می‌شود؛ سرور متن را نمی‌بیند.</div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="show_previews"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">نمایش ساعت روی پیام‌ها</div><div class="d"></div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="show_timestamps"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">صدای پیام و اعلان</div><div class="d"></div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="sounds"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+        </section>
+
+        <!-- ============ notifications ============ -->
+        <section class="settings-panel card" data-panel="notify">
+            <div class="section-head"><h2>اعلان‌ها</h2></div>
+            <div class="set-row">
+                <div class="txt"><div class="k">اعلان push</div><div class="d">وقتی برنامه باز نیست. فقط نام گروه و فرستنده ارسال می‌شود، نه متن پیام.</div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="push_on"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+            <div class="callout">
+                <svg class="icon"><use href="#i-info"/></svg>
+                <span>وضعیت: <b id="push-status">در حال بررسی…</b></span>
+            </div>
+            <div class="row" style="gap:8px;flex-wrap:wrap;padding:6px">
+                <button type="button" class="btn btn-primary btn-sm" id="btn-enable-push">فعال‌سازی اعلان در مرورگر</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-test-push">ارسال اعلان آزمایشی</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-disable-push">لغو اشتراک</button>
+            </div>
+            <div class="set-group">
+                <h3>بی‌صدا کردن سریع</h3>
+                <p class="muted small" style="padding:0 6px">برای هر گروه از پنل «اطلاعات گروه» داخل چت می‌توانید اعلان را خاموش کنید.</p>
+            </div>
+        </section>
+
+        <!-- ============ performance ============ -->
+        <section class="settings-panel card" data-panel="perf">
+            <div class="section-head"><h2>عملکرد و باتری</h2></div>
+            <div class="set-row">
+                <div class="txt"><div class="k">انیمیشن‌ها</div><div class="d">خاموش کردن، همه‌ی حرکت‌ها و گذارها را حذف می‌کند.</div></div>
+                <div class="ctl"><label class="switch"><input type="checkbox" data-setting="animations"><span class="track"><span class="thumb"></span></span></label></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">افکت شیشه‌ای</div><div class="d">مصرف GPU را بالا می‌برد؛ از بخش «ظاهر» خاموشش کنید.</div></div>
+                <div class="ctl"><span class="chip" id="chip-glass-ref">—</span></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">پس‌زمینه متحرک</div><div class="d">برای صرفه‌جویی «ساده» را از بخش ظاهر انتخاب کنید.</div></div>
+                <div class="ctl"><span class="chip" id="chip-wall-ref">—</span></div>
+            </div>
+            <div class="callout warn">
+                <svg class="icon"><use href="#i-zap"/></svg>
+                <span>حالت «کم‌مصرف»: انیمیشن و شیشه را خاموش و والپیپر را روی «ساده» بگذارید.</span>
+                <button type="button" class="btn btn-ghost btn-sm" id="btn-power-saver">اعمال</button>
+            </div>
+        </section>
+
+        <!-- ============ security ============ -->
+        <section class="settings-panel card" data-panel="security">
+            <div class="section-head"><h2>امنیت</h2></div>
+            <div class="set-row">
+                <div class="txt"><div class="k">قفل خودکار</div><div class="d">بعد از بی‌کاری، برای رمزگشایی کلیدها رمز اصلی خواسته می‌شود. (0 = همیشه باز)</div></div>
+                <div class="ctl">
+                    <div class="segmented" data-setting="auto_lock_minutes">
+                        <button type="button" data-v="0">خاموش</button>
+                        <button type="button" data-v="5">۵</button>
+                        <button type="button" data-v="10">۱۰</button>
+                        <button type="button" data-v="30">۳۰</button>
+                        <button type="button" data-v="120">۱۲۰</button>
+                    </div>
+                </div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">رمز فوری (Duress)</div><div class="d">در صفحه ورود، اگر رمز دوم را وارد کنید همه‌ی داده‌ها پاک می‌شود.</div></div>
+                <div class="ctl"><svg class="icon" style="color:var(--warn)"><use href="#i-lock"/></svg></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">کلید عمومی من</div><div class="d">برای رمزنگاری پیام‌های خصوصی استفاده می‌شود.</div></div>
+                <div class="ctl"><button type="button" class="btn btn-ghost btn-sm" id="btn-show-my-key">نمایش</button></div>
+            </div>
+            <div class="field" style="margin-top:8px;display:none" id="my-key-box">
+                <textarea class="input" id="my-key-text" rows="3" readonly style="font-size:.7rem;direction:ltr"></textarea>
+            </div>
+        </section>
+
+        <!-- ============ account ============ -->
+        <section class="settings-panel card" data-panel="account">
+            <div class="section-head"><h2>حساب</h2></div>
+            <div class="set-row">
+                <div class="txt"><div class="k">نام کاربری</div><div class="d">{{ user.username }}</div></div>
+                <div class="ctl">
+                    <div class="avatar sm" id="account-avatar" data-initial="{{ user.username|slice:':1'|upper }}">
+                        {% if active_photo %}<img src="{% url 'profile_photo_file' active_photo.id %}" alt="">
+                        {% else %}{{ user.username|slice:':1'|upper }}{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="set-group">
+                <h3>عکس‌های پروفایل</h3>
+                <p class="muted small" style="padding:0 6px">آخرین عکسی که اضافه می‌کنید عکس اصلی پروفایل می‌شود؛ با زدن روی هر عکس، همان را اصلی کنید.</p>
+                <div class="photo-grid" id="profile-photos">
+                    {% for p in profile_photos %}
+                    <figure class="photo-tile{% if p.is_active %} active{% endif %}" data-id="{{ p.id }}">
+                        <img src="{% url 'profile_photo_file' p.id %}" alt="عکس پروفایل" loading="lazy">
+                        <button type="button" class="photo-del" data-del="{{ p.id }}" aria-label="حذف عکس"><svg class="icon"><use href="#i-trash"/></svg></button>
+                        {% if p.is_active %}<figcaption><svg class="icon"><use href="#i-check"/></svg></figcaption>{% endif %}
+                    </figure>
+                    {% endfor %}
+                    <button type="button" class="photo-add" id="btn-add-photo">
+                        <svg class="icon"><use href="#i-camera"/></svg><span>عکس جدید</span>
+                    </button>
+                </div>
+                <input type="file" id="photo-input" accept="image/*" multiple style="display:none">
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">خروج از حساب</div><div class="d">کلیدهای خصوصی این مرورگر هم پاک می‌شوند.</div></div>
+                <div class="ctl"><a class="btn btn-danger btn-sm" href="{% url 'logout' %}">خروج</a></div>
+            </div>
+            <div class="set-row">
+                <div class="txt"><div class="k">پاک کردن کش نسخه محلی</div><div class="d">اگر بعد از به‌روزرسانی، ظاهر برنامه کهنه به نظر می‌رسد.</div></div>
+                <div class="ctl"><button type="button" class="btn btn-ghost btn-sm" id="btn-refresh-app">بازخوانی نسخه جدید</button></div>
+            </div>
+            <p class="muted small" style="margin-top:var(--s-4)">پیام‌رسان خیر — نسخه‌ی تحت وب (PWA). همه‌ی پیام‌ها، فایل‌ها و تماس‌ها به‌صورت سرتاسری رمزنگاری می‌شوند.</p>
+        </section>
+    </div>
+</div>
+{{ ui_settings|json_script:"settings-data" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/ui.js' %}"></script>
+<script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}

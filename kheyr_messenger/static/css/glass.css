@@ -1,0 +1,75 @@
+/* ============================================================
+   Kheyr — glass surfaces. When [data-glass="off"], every
+   backdrop-filter disappears and solid fills are used instead
+   (battery / performance mode).
+   ============================================================ */
+
+.glass{
+    background:var(--surface);
+    border:1px solid var(--stroke);
+    box-shadow:var(--shadow-2);
+    position:relative;
+}
+[data-glass="on"] .glass{
+    background:color-mix(in srgb, var(--surface-solid) 58%, transparent);
+    -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+    backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+}
+.glass::after{
+    content:""; position:absolute; inset:0; border-radius:inherit;
+    background:var(--specular); opacity:.5; pointer-events:none;
+}
+[data-glass="off"] .glass::after{opacity:0}
+
+.glass-soft{
+    background:var(--surface-2);
+    border:1px solid var(--stroke);
+}
+[data-glass="on"] .glass-soft{
+    background:color-mix(in srgb, var(--surface-solid) 42%, transparent);
+    -webkit-backdrop-filter:blur(calc(var(--blur) * .66)) saturate(var(--sat));
+    backdrop-filter:blur(calc(var(--blur) * .66)) saturate(var(--sat));
+}
+
+.glass-strong{
+    background:var(--surface-solid);
+    border:1px solid var(--stroke-strong);
+    box-shadow:var(--shadow-3);
+}
+[data-glass="on"] .glass-strong{
+    background:color-mix(in srgb, var(--surface-solid) 78%, transparent);
+    -webkit-backdrop-filter:blur(calc(var(--blur) * 1.5)) saturate(var(--sat));
+    backdrop-filter:blur(calc(var(--blur) * 1.5)) saturate(var(--sat));
+}
+
+/* frosted bar (composers / room headers) */
+.glass-bar{
+    background:var(--surface);
+    border-color:var(--stroke);
+}
+[data-glass="on"] .glass-bar{
+    background:color-mix(in srgb, var(--surface-solid) 52%, transparent);
+    -webkit-backdrop-filter:blur(calc(var(--blur) * 1.2)) saturate(180%);
+    backdrop-filter:blur(calc(var(--blur) * 1.2)) saturate(180%);
+}
+
+/* the sheen that slides across glass on hover — motion only */
+[data-glass="on"][data-anim="on"] .sheen{position:relative; overflow:hidden}
+.sheen::before{
+    content:""; position:absolute; top:-60%; bottom:-60%; width:38%;
+    left:-60%; transform:skewX(-18deg);
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+    opacity:0; pointer-events:none;
+}
+[data-glass="on"][data-anim="on"] .sheen:hover::before{
+    animation:sheen var(--t-slow) var(--ease-out) 1;
+}
+@keyframes sheen{
+    from{left:-60%; opacity:.9}
+    to{left:130%; opacity:0}
+}
+
+/* rounded helpers */
+.r-md{border-radius:var(--r-md)}
+.r-lg{border-radius:var(--r-lg)}
+.r-xl{border-radius:var(--r-xl)}
