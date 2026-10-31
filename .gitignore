@@ -31,3 +31,5 @@ livekit/*.exe
 livekit/*.dll
 livekit/*.so
 livekit/*.dylib
+kheyr_messenger/db.sqlite3.pre-overhaul.bak
+kheyr_messenger/db.sqlite3.pre-dm-merge.bak

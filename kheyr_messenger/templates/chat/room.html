@@ -1,67 +1,298 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}{{ room.name }}{% endblock %}
+{% block title %}{{ room.display_title }}{% endblock %}
+{% block body_class %}page-room{% endblock %}
+
+{% block chrome %}{% endblock %}
+
 {% block content %}
-<div class="card chat-card">
-    <div class="section-head">
-        <h2>{{ room.name }}</h2>
-        <div>
-            <button type="button" id="btn-call-group" class="btn-small">📞 تماس</button>
-            <a href="{% url 'room_list' %}" class="btn-small">بازگشت</a>
-        </div>
-    </div>
+<div class="room-shell">
 
-    <div id="group-invite-box" style="display:none; margin-bottom:12px; padding:10px; background:#ffe5e0; border-radius:8px;">
-        <p><strong id="group-invite-from"></strong> در حال تماس است.</p>
-        <button type="button" id="group-invite-join" class="btn-primary">ورود</button>
-        <button type="button" id="group-invite-ignore" class="btn-small">بعداً</button>
-    </div>
-
-    <div id="group-call-box" style="display:none; margin-bottom:12px; background:#111; padding:8px; border-radius:8px;">
-        <div style="color:#0f0; font-size:0.8rem; margin-bottom:4px;">🔒 E2EE فعال</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <div id="lk-local-box" style="width:180px;">
-                <div class="muted small" style="color:#fff;">شما</div>
+    <header class="room-head glass-bar">
+        <a class="btn-icon" href="{% url 'room_list' %}" aria-label="بازگشت">
+            <svg class="icon"><use href="#i-arrow-right"/></svg>
+        </a>
+        <span class="avatar" id="room-avatar" {% if room.avatar_color %}style="background:linear-gradient(140deg,{{ room.avatar_color }},color-mix(in srgb,{{ room.avatar_color }} 55%, #7c4dff))"{% endif %}>
+            {% if room.kind == 'saved' %}<svg class="icon"><use href="#i-bookmark"/></svg>
+            {% elif room.is_group %}<svg class="icon"><use href="#i-users"/></svg>
+            {% else %}<svg class="icon"><use href="#i-user"/></svg>{% endif %}
+        </span>
+        <div class="who" id="room-who" role="button" tabindex="0">
+            <h2 class="truncate">{{ room.display_title }}</h2>
+            <div class="sub truncate" id="room-sub">
+                {% if room.kind == 'saved' %}فضای شخصی شما
+                {% elif room.is_group %}{{ room.member_count }} عضو
+                {% else %}چت خصوصی{% endif %}
             </div>
-            <div id="lk-remote-container" style="flex:1; display:flex; gap:8px; flex-wrap:wrap;"></div>
         </div>
-        <div style="margin-top:8px; color:#fff; display:flex; gap:8px;">
-            <button type="button" id="group-toggle-mic" class="btn-small">🎤 میک</button>
-            <button type="button" id="group-toggle-cam" class="btn-small">📷 دوربین</button>
-            <button type="button" id="group-hangup" class="btn-primary">قطع</button>
+        <div class="actions">
+            {% if room.kind != 'saved' %}
+            <button type="button" class="btn-icon" id="btn-call-group" title="تماس صوتی">
+                <svg class="icon"><use href="#i-phone"/></svg>
+            </button>
+            <button type="button" class="btn-icon" id="btn-video-call" title="تماس تصویری">
+                <svg class="icon"><use href="#i-camera"/></svg>
+            </button>
+            {% endif %}
+            <button type="button" class="btn-icon" id="btn-search-in-room" title="جستجو">
+                <svg class="icon"><use href="#i-search"/></svg>
+            </button>
+            <button type="button" class="btn-icon" id="btn-room-info" title="اطلاعات گروه">
+                <svg class="icon"><use href="#i-dots"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="pin-bar" id="pin-bar" style="display:none" role="button" tabindex="0">
+        <svg class="icon"><use href="#i-pin"/></svg>
+        <span class="txt truncate" id="pin-bar-text"></span>
+        <div class="grow"></div>
+        <button type="button" class="btn-icon" id="pin-bar-close" aria-label="بستن"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+
+    <div id="chat-log" class="chat-log" aria-live="polite"></div>
+
+    <button type="button" class="jump-pill glass" id="jump-bottom" style="display:none" aria-label="پرش به آخرین پیام">
+        <svg class="icon"><use href="#i-arrow-down"/></svg>
+        <span class="badge" id="jump-badge" style="display:none">0</span>
+    </button>
+
+    <div id="upload-progress" class="hint" style="display:none; padding:0 14px 6px"></div>
+
+    <!-- livekit call surfaces -->
+    <div id="group-invite-box" class="callout warn" style="display:none; margin:0 12px 8px">
+        <strong id="group-invite-from"></strong> در حال تماس است.
+        <div class="grow"></div>
+        <button type="button" id="group-invite-join" class="btn btn-primary btn-sm">ورود</button>
+        <button type="button" id="group-invite-ignore" class="btn btn-ghost btn-sm">بعداً</button>
+    </div>
+    <div id="group-call-box" class="card" style="display:none; margin:0 12px 8px; background:#0c0f16">
+        <div class="row" style="gap:6px;color:#5ad196;font-size:.78rem;margin-bottom:6px">
+            <svg class="icon"><use href="#i-lock"/></svg> تماس کاملاً رمزنگاری (E2EE) فعال است
+        </div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;align-items:flex-start">
+            <div id="lk-local-box" style="width:180px">
+                <div class="muted small" style="color:#fff">شما</div>
+            </div>
+            <div id="lk-remote-container" class="row" style="flex:1;gap:8px;flex-wrap:wrap"></div>
+        </div>
+        <div class="row" style="gap:8px;margin-top:10px">
+            <button type="button" id="group-toggle-mic" class="btn btn-ghost btn-sm">
+                <svg class="icon"><use href="#i-mic"/></svg> میکروفون
+            </button>
+            <button type="button" id="group-toggle-cam" class="btn btn-ghost btn-sm">
+                <svg class="icon"><use href="#i-eye"/></svg> دوربین
+            </button>
+            <button type="button" id="group-hangup" class="btn btn-danger btn-sm">
+                <svg class="icon"><use href="#i-phone-off"/></svg> قطع
+            </button>
         </div>
     </div>
 
-    <div id="reenter-pwd" style="display:none; margin-bottom:12px;">
-        <p class="muted">رمز اصلی خود را وارد کنید:</p>
-        <div class="chat-input-row">
-            <input type="password" id="reenter-pwd-input" placeholder="رمز اصلی">
-            <button type="button" id="reenter-pwd-btn" class="btn-primary">ادامه</button>
+    <!-- composer -->
+    <div class="composer-wrap">
+        <div class="reply-strip" id="reply-strip" style="display:none">
+            <span class="bar"></span>
+            <span class="grow truncate">
+                <b id="reply-strip-name"></b> <span class="dim" id="reply-strip-text"></span>
+            </span>
+            <button type="button" class="btn-icon" id="reply-cancel" aria-label="لغو"><svg class="icon"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="mini-player glass-strong" id="mini-player">
+            <div class="disc" id="mp-disc">
+                <svg class="icon" id="mp-disc-icon"><use href="#i-music"/></svg>
+                <img id="mp-art" alt="">
+            </div>
+            <div class="what">
+                <div class="t truncate" id="mp-title">—</div>
+                <div class="s truncate" id="mp-artist"></div>
+                <div class="p" id="mp-progress"><i id="mp-fill"></i></div>
+                <div class="tm"><span id="mp-cur">0:00</span><span id="mp-dur">0:00</span></div>
+            </div>
+            <button type="button" class="ctrl" id="mp-prev" aria-label="قبلی"><svg class="icon"><use href="#i-prev"/></svg></button>
+            <button type="button" class="ctrl main" id="mp-play" aria-label="پخش/توقف"><svg class="icon"><use href="#i-pause"/></svg></button>
+            <button type="button" class="ctrl" id="mp-next" aria-label="بعدی"><svg class="icon"><use href="#i-next"/></svg></button>
+            <button type="button" class="ctrl" id="mp-close" aria-label="بستن"><svg class="icon"><use href="#i-x"/></svg></button>
+        </div>
+
+        <div class="attach-menu glass-strong" id="attach-menu">
+            <button type="button" data-act="camera">
+                <span class="glyph" style="background:#c0392b"><svg class="icon"><use href="#i-camera"/></svg></span> دوربین
+            </button>
+            <button type="button" data-act="photo">
+                <span class="glyph" style="background:#12b8a3"><svg class="icon"><use href="#i-image"/></svg></span> عکس یا گالری
+            </button>
+            <button type="button" data-act="video">
+                <span class="glyph" style="background:#4f7cff"><svg class="icon"><use href="#i-play"/></svg></span> ویدیو
+            </button>
+            <button type="button" data-act="music">
+                <span class="glyph" style="background:#7c5cff"><svg class="icon"><use href="#i-music"/></svg></span> موسیقی
+            </button>
+            <button type="button" data-act="file">
+                <span class="glyph" style="background:#f39c12"><svg class="icon"><use href="#i-file"/></svg></span> فایل
+            </button>
+            <button type="button" data-act="poll">
+                <span class="glyph" style="background:#e84393"><svg class="icon"><use href="#i-chart"/></svg></span> نظرسنجی
+            </button>
+            <div class="attach-note">متنِ کادر، به عنوان توضیح به فایل می‌چسبد</div>
+        </div>
+
+        <div class="emoji-pop glass-strong" id="emoji-pop" style="display:none"></div>
+
+        <div class="rec-bar glass-bar" id="rec-bar" style="display:none">
+            <span class="dot"></span>
+            <span class="lvl" id="rec-level"></span>
+            <span class="time" id="rec-time">0:00</span>
+            <button type="button" class="btn-icon danger" id="rec-cancel" aria-label="لغو ضبط"><svg class="icon"><use href="#i-trash"/></svg></button>
+            <button type="button" class="btn-icon" id="rec-send" aria-label="ارسال صوت" style="color:var(--ok)"><svg class="icon"><use href="#i-send"/></svg></button>
+        </div>
+
+        <div class="composer glass-bar" id="chat-input-row">
+            <input type="file" id="chat-file" accept="*/*" style="display:none">
+            <input type="file" id="chat-photo" accept="image/*" multiple style="display:none">
+            <input type="file" id="chat-video" accept="video/*" style="display:none">
+            <input type="file" id="chat-music" accept="audio/*" multiple style="display:none">
+            <input type="file" id="chat-camera" accept="image/*" capture="environment" style="display:none">
+
+            <button type="button" class="btn-icon" id="chat-attach" aria-label="افزودن"><svg class="icon"><use href="#i-paperclip"/></svg></button>
+            <div class="input-ring">
+                <button type="button" class="btn-icon" id="btn-emoji" aria-label="ایموجی"><svg class="icon"><use href="#i-smile"/></svg></button>
+                <textarea id="chat-input" rows="1" placeholder="پیام…" autocomplete="off"></textarea>
+                <button type="button" class="send-btn" id="chat-send" aria-label="ارسال"><svg class="icon"><use href="#i-send"/></svg></button>
+            </div>
+            <button type="button" class="btn-icon" id="btn-mic" aria-label="ضبط Voice"><svg class="icon"><use href="#i-mic"/></svg></button>
         </div>
     </div>
-
-    <div id="chat-log" class="chat-log"></div>
-    <div id="upload-progress" class="muted small" style="display:none"></div>
-
-    <div class="chat-input-row" id="chat-input-row" style="display:none;">
-        <input type="file" id="chat-file" style="display:none" accept="*/*">
-        <button type="button" id="chat-attach" class="btn-small">📎</button>
-        <input type="text" id="chat-input" placeholder="پیام…" autocomplete="off">
-        <button id="chat-send" class="btn-primary">ارسال</button>
-    </div>
-
-    <p class="muted small">
-        پیام‌ها، فایل‌ها و تماس‌ها End-to-End رمزنگاری می‌شوند.
-    </p>
 </div>
+
+<!-- room info drawer -->
+<aside class="drawer glass-strong" id="room-drawer" aria-label="اطلاعات گروه">
+    <div class="section-head">
+        <h2>اطلاعات</h2>
+        <div class="grow"></div>
+        <button type="button" class="btn-icon" id="drawer-close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+    <div style="text-align:center;padding:var(--s-3) 0">
+        <span class="avatar xl" id="drawer-avatar" style="margin:0 auto">{% if room.is_group %}<svg class="icon"><use href="#i-users"/></svg>{% else %}<svg class="icon"><use href="#i-user"/></svg>{% endif %}</span>
+        <h3 id="drawer-name" style="margin-top:10px">{{ room.display_title }}</h3>
+        <p class="muted small" id="drawer-topic">{{ room.topic }}</p>
+    </div>
+    <div class="set-group">
+        <h3>اعضا</h3>
+        <ul id="drawer-members" style="list-style:none;margin:0;padding:0"></ul>
+    </div>
+    <div class="set-group">
+        <h3>رسانه‌های مشترک</h3>
+        <div class="shared-grid" id="drawer-media"></div>
+    </div>
+    <div class="set-group">
+        <h3>تنظیمات این گفتگو</h3>
+        <div class="set-row">
+            <div class="txt"><div class="k">بی‌صدا کردن</div><div class="d">دریافت اعلان از این گروه متوقف می‌شود.</div></div>
+            <div class="ctl">
+                <label class="switch"><input type="checkbox" id="toggle-mute-room"><span class="track"><span class="thumb"></span></span></label>
+            </div>
+        </div>
+        <div class="set-row">
+            <div class="txt"><div class="k">پین در لیست</div><div class="d">همیشه بالای گفتگوها بماند.</div></div>
+            <div class="ctl">
+                <label class="switch"><input type="checkbox" id="toggle-pin-room"><span class="track"><span class="thumb"></span></span></label>
+            </div>
+        </div>
+        <div class="set-row">
+            <div class="txt"><div class="k">بایگانی</div><div class="d">از لیست اصلی به پوشه بایگانی منتقل شود.</div></div>
+            <div class="ctl">
+                <label class="switch"><input type="checkbox" id="toggle-archive-room"><span class="track"><span class="thumb"></span></span></label>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- context menu for messages -->
+<div class="ctxmenu glass-strong" id="msg-menu"></div>
+
+<!-- poll composer -->
+<div class="overlay" id="poll-overlay">
+    <div class="modal glass-strong" role="dialog" aria-label="ساخت نظرسنجی">
+        <h3>نظرسنجی جدید</h3>
+        <div class="field">
+            <label for="poll-question">پرسش</label>
+            <input class="input" id="poll-question" placeholder="نظر شما چیست؟" maxlength="220">
+        </div>
+        <div class="field">
+            <label>گزینه‌ها</label>
+            <div id="poll-options" style="display:flex;flex-direction:column;gap:8px"></div>
+            <button type="button" class="btn btn-ghost btn-sm" id="poll-add-opt" style="margin-top:8px;align-self:flex-start">
+                <svg class="icon"><use href="#i-plus"/></svg> افزودن گزینه
+            </button>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" id="poll-cancel">انصراف</button>
+            <button type="button" class="btn btn-primary" id="poll-send">ارسال نظرسنجی</button>
+        </div>
+    </div>
+</div>
+
+<!-- search in room -->
+<div class="overlay" id="search-overlay">
+    <div class="modal glass-strong" role="dialog" aria-label="جستجو در گفتگو">
+        <h3>جستجو در پیام‌ها</h3>
+        <div class="field">
+            <input class="input" id="room-search-input" placeholder="متن پیام…" autocomplete="off">
+        </div>
+        <ul id="room-search-results" style="list-style:none;margin:0;padding:0;max-height:50dvh;overflow-y:auto"></ul>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" id="search-close">بستن</button>
+        </div>
+    </div>
+</div>
+
+<!-- camera -->
+<div class="overlay camera-overlay" id="camera-sheet">
+    <div class="camera-box" role="dialog" aria-label="دوربین">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <div class="camera-bar">
+            <button type="button" class="btn-icon" id="camera-close" aria-label="بستن"><svg class="icon"><use href="#i-x"/></svg></button>
+            <button type="button" class="camera-shutter" id="camera-shoot" aria-label="عکس بگیر"><span></span></button>
+            <button type="button" class="btn-icon" id="camera-flip" aria-label="تعویض دوربین"><svg class="icon"><use href="#i-rotate"/></svg></button>
+        </div>
+    </div>
+</div>
+
+<!-- key re-entry (duress gate) -->
+<div class="overlay" id="reenter-pwd">
+    <div class="modal glass-strong" role="dialog" aria-label="تأیید رمز">
+        <h3>قفل کلیدها باز شود</h3>
+        <p class="muted small" id="reenter-pwd-hint">برای رمزگشایی پیام‌ها، رمز اصلی خود را وارد کنید.</p>
+        <div class="field">
+            <input class="input" type="password" id="reenter-pwd-input" placeholder="رمز اصلی" autocomplete="current-password">
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="reenter-pwd-btn">ادامه</button>
+        </div>
+    </div>
+</div>
+
+<div id="lightbox-host"></div>
+<div id="toast-anchor"></div>
+
 {{ room_json|json_script:"room-data" }}
 {% endblock %}
+
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.5.7/dist/livekit-client.umd.min.js"></script>
 <script src="{% static 'js/tweetnacl.min.js' %}"></script>
 <script src="{% static 'js/crypto.js' %}"></script>
 <script src="{% static 'js/keydb.js' %}"></script>
 <script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/ui.js' %}"></script>
+<script src="{% static 'js/media.js' %}"></script>
+<script src="{% static 'js/tags.js' %}"></script>
+<script src="{% static 'js/player.js' %}"></script>
+<script src="{% static 'js/gallery.js' %}"></script>
+<script src="{% static 'js/voice.js' %}"></script>
+<script src="{% static 'js/polls.js' %}"></script>
 <script src="{% static 'js/livekit_e2ee.js' %}"></script>
 <script src="{% static 'js/chat.js' %}"></script>
 {% endblock %}

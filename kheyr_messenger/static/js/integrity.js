@@ -1,8 +1,11 @@
 async function checkCodeIntegrity() {
     try {
         const res = await fetch('/api/code-integrity/');
-        if (!res.ok) {
-            console.warn('integrity api failed:', res.status);
+        const isJson = (res.headers.get('content-type') || '').includes('application/json');
+        if (!res.ok || res.redirected || !isJson) {
+            // Not signed in yet (the API bounces to the login page) or the
+            // endpoint is down — the next authenticated boot will check.
+            console.warn('integrity api unavailable:', res.status);
             return { ok: true };
         }
         const data = await res.json();

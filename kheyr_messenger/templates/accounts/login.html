@@ -1,17 +1,52 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}ورود{% endblock %}
+{% block title %}ورود — پیام‌رسان خیر{% endblock %}
+{% block chrome %}{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>ورود به پیام‌رسان</h2>
-    <form method="post" id="login-form" autocomplete="off">
-        {% csrf_token %}
-        <label>نام کاربری<input type="text" name="username" id="login-username" required></label>
-        <label>رمز<input type="password" id="login-pwd" required></label>
-        <input type="hidden" name="password" id="login-auth-hash">
-        <button type="submit" class="btn-primary">ورود</button>
-    </form>
-    <p class="muted">حساب ندارید؟ <a href="{% url 'register' %}">ثبت‌نام</a></p>
+<div class="auth-wrap">
+    <div class="auth-split">
+        <div class="auth-hero" id="auth-hero">
+            <h2>امن، سریع، <span style="color:var(--accent)">شیشه‌ای</span>.</h2>
+            <p class="lead muted">پیام‌رسان خیر؛ رمزنگاری سرتاسری از کلید شما تا کلید دوستتان. حتی سرور هم متن پیام‌ها را نمی‌بیند.</p>
+            <div class="pill-row">
+                <span>🔐 E2EE با NaCl</span>
+                <span>🎙 ویس و فایل رمزنگاری‌شده</span>
+                <span>📌 پیام‌های سنجاق‌شده</span>
+                <span>🗳 نظرسنجی</span>
+            </div>
+        </div>
+        <div class="auth-card glass r-xl">
+            <div class="auth-logo">خ</div>
+            <h1>ورود به پیام‌رسان</h1>
+            <p class="sub">خوش آمدید. با حساب خود وارد شوید.</p>
+
+            {% if request.GET.integrity %}
+                <div class="flash flash-error">به دلیل عدم تطابق کد، کلیدهای محلی پاک شدند. دوباره وارد شوید.</div>
+            {% endif %}
+
+            <form method="post" id="login-form" autocomplete="off">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="login-username">نام کاربری</label>
+                    <input class="input" type="text" name="username" id="login-username" required autocomplete="username">
+                </div>
+                <div class="field">
+                    <label for="login-pwd">رمز عبور</label>
+                    <div class="input-wrap">
+                        <input class="input" type="password" id="login-pwd" required autocomplete="current-password" style="padding-inline-end:44px">
+                        <button type="button" class="in-btn pwd-toggle" data-target="login-pwd" aria-label="نمایش رمز">
+                            <svg class="icon"><use href="#i-eye"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <input type="hidden" name="password" id="login-auth-hash">
+                <button type="submit" class="btn btn-primary" style="width:100%">
+                    <svg class="icon"><use href="#i-arrow-right"/></svg> ورود
+                </button>
+            </form>
+            <p class="auth-foot">حساب ندارید؟ <a href="{% url 'register' %}">ثبت‌نام کنید</a></p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -19,5 +54,6 @@
 <script src="{% static 'js/crypto.js' %}"></script>
 <script src="{% static 'js/keydb.js' %}"></script>
 <script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/ui.js' %}"></script>
 <script src="{% static 'js/auth.js' %}"></script>
 {% endblock %}

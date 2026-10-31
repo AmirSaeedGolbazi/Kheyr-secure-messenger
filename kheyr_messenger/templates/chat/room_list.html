@@ -1,49 +1,134 @@
 {% extends 'base.html' %}
-{% block title %}گروه‌ها{% endblock %}
+{% load static %}
+{% block title %}گفتگوها{% endblock %}
+{% block body_class %}page-rooms{% endblock %}
 {% block content %}
-<div class="card">
-    <div class="section-head">
-        <h2>گروه‌های شما</h2>
-        <a href="{% url 'create_group' %}" class="btn-small">+ گروه جدید</a>
-    </div>
-    {% if rooms %}
-    <ul class="room-list">
-        {% for r in rooms %}
-        <li><a href="{% url 'room_detail' r.id %}">
-            {% if r.is_group %}👥{% else %}💬{% endif %} {{ r.name }}
-        </a></li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p class="muted">هنوز در گروهی عضو نیستید.</p>
-    {% endif %}
-</div>
+<div class="rooms-grid">
 
-<div class="card">
-    <div class="section-head"><h2>شروع چت خصوصی</h2></div>
-    <ul class="room-list">
-        {% for u in others %}
-        <li><a href="{% url 'start_private' u.username %}">💬 {{ u.username }}</a></li>
-        {% empty %}
-        <li class="muted">کاربر دیگری نیست.</li>
-        {% endfor %}
-    </ul>
-</div>
+    <section class="card rise" style="--i:0">
+        <div class="section-head">
+            <h2>گفتگوها</h2>
+            <div class="grow"></div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-open-create">
+                <svg class="icon"><use href="#i-plus"/></svg> گروه جدید
+            </button>
+        </div>
 
-{% if show_create %}
-<div class="card">
-    <h2>ساخت گروه جدید</h2>
-    <form method="post" action="{% url 'create_group' %}">
-        {% csrf_token %}
-        <label>نام گروه<input type="text" name="name" required></label>
-        <fieldset>
-            <legend>اعضا</legend>
-            {% for u in others %}
-            <label class="check"><input type="checkbox" name="members" value="{{ u.id }}"> {{ u.username }}</label>
+        <div class="field">
+            <div class="input-wrap">
+                <input type="search" id="rooms-search" class="input" placeholder="جستجوی گروه یا مخاطب…" autocomplete="off">
+            </div>
+        </div>
+
+        <div class="segmented" id="rooms-filter" role="tablist">
+            <button type="button" class="active" data-f="all">همه</button>
+            <button type="button" data-f="unread">خوانده‌نشده</button>
+            <button type="button" data-f="group">گروه‌ها</button>
+            <button type="button" data-f="private">خصوصی</button>
+            <button type="button" data-f="archived">بایگانی</button>
+        </div>
+
+        <ul class="room-list" id="rooms-list" style="list-style:none;margin:12px 0 0;padding:0">
+            <li>
+                <a class="chat-row saved" href="{% url 'room_detail' saved.id %}"
+                   data-room-id="{{ saved.id }}" data-kind="saved" data-name="{{ saved.display_title|escape }}">
+                    <span class="avatar"><svg class="icon"><use href="#i-bookmark"/></svg></span>
+                    <span class="mid">
+                        <span class="t"><span class="name truncate">{{ saved.display_title }}</span></span>
+                        <span class="prev loading" data-preview>…</span>
+                    </span>
+                    <span class="end"><span class="badges"></span><span class="time"></span></span>
+                </a>
+            </li>
+            {% for r in rooms %}
+            {% with p=prefs %}
+            <li>
+                <a class="chat-row{% if r.kind == 'saved' %} saved{% endif %}"
+                   href="{% url 'room_detail' r.id %}"
+                   data-room-id="{{ r.id }}" data-kind="{{ r.kind }}"
+                   data-name="{{ r.display_title|escape }}">
+                    <span class="avatar" {% if r.avatar_color %}style="background:linear-gradient(140deg,{{ r.avatar_color }},color-mix(in srgb,{{ r.avatar_color }} 55%, #7c4dff))"{% endif %}>
+                        {% if r.kind == 'saved' %}<svg class="icon"><use href="#i-bookmark"/></svg>
+                        {% elif r.is_group %}<svg class="icon"><use href="#i-users"/></svg>
+                        {% else %}<svg class="icon"><use href="#i-user"/></svg>{% endif %}
+                    </span>
+                    <span class="mid">
+                        <span class="t">
+                            <span class="name truncate">{{ r.display_title }}</span>
+                            {% if r.topic %}<svg class="icon icon-mini" title="توصیف دارد"><use href="#i-info"/></svg>{% endif %}
+                        </span>
+                        <span class="prev loading" data-preview>…</span>
+                    </span>
+                    <span class="end">
+                        <span class="badges"></span>
+                        <span class="time"></span>
+                    </span>
+                </a>
+            </li>
+            {% endwith %}
+            {% empty %}
+            <li class="muted" style="padding:18px;text-align:center">هنوز در گروهی عضو نیستید.</li>
             {% endfor %}
-        </fieldset>
-        <button type="submit" class="btn-primary">ساخت</button>
-    </form>
+        </ul>
+    </section>
 </div>
-{% endif %}
+
+<div class="overlay{% if show_create %} show{% endif %}" id="create-group-overlay">
+    <div class="modal glass-strong create-group-modal" role="dialog" aria-modal="true" aria-label="ساخت گروه جدید">
+        <div class="section-head">
+            <h3>ساخت گروه جدید</h3>
+            <div class="grow"></div>
+            <button type="button" class="btn-icon" id="btn-close-create" aria-label="بستن"><svg class="icon"><use href="#i-x"/></svg></button>
+        </div>
+        <form method="post" action="{% url 'create_group' %}" id="create-group-form">
+            {% csrf_token %}
+            <div class="field">
+                <label for="id_name">نام گروه</label>
+                <input class="input" type="text" id="id_name" name="name" required placeholder="مثلاً دوستان خیر">
+            </div>
+            <div class="field">
+                <label for="id_topic">توصیف (اختیاری)</label>
+                <input class="input" type="text" id="id_topic" name="topic" placeholder="درباره‌ی چیست؟">
+            </div>
+            <div class="field">
+                <label>رنگ آواتار</label>
+                <div class="swatches" id="avatar-swatches">
+                    <button type="button" class="swatch sel" data-c="#c0392b" style="background:#c0392b"></button>
+                    <button type="button" class="swatch" data-c="#4f7cff" style="background:#4f7cff"></button>
+                    <button type="button" class="swatch" data-c="#7c5cff" style="background:#7c5cff"></button>
+                    <button type="button" class="swatch" data-c="#12b8a3" style="background:#12b8a3"></button>
+                    <button type="button" class="swatch" data-c="#f39c12" style="background:#f39c12"></button>
+                    <button type="button" class="swatch" data-c="#e84393" style="background:#e84393"></button>
+                </div>
+                <input type="hidden" name="avatar_color" id="avatar-color-input" value="#c0392b">
+            </div>
+            <fieldset style="border:0;padding:0;margin:0 0 var(--s-3)">
+                <legend class="lbl" style="font-size:.84rem;font-weight:var(--fw-semi);color:var(--text-2)">اعضا</legend>
+                <div class="member-pick" id="member-pick">
+                    {% for u in others %}
+                    <button type="button" class="chip" data-id="{{ u.id }}">{{ u.username }}</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="members" id="members-input" value="">
+            </fieldset>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" id="btn-cancel-create">انصراف</button>
+                <button type="submit" class="btn btn-primary" id="btn-create-group">
+                    <svg class="icon"><use href="#i-check"/></svg> ساخت گروه
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="ctxmenu glass-strong" id="room-menu"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/tweetnacl.min.js' %}"></script>
+<script src="{% static 'js/crypto.js' %}"></script>
+<script src="{% static 'js/keydb.js' %}"></script>
+<script src="{% static 'js/ui.js' %}"></script>
+<script src="{% static 'js/polls.js' %}"></script>
+<script src="{% static 'js/rooms.js' %}"></script>
 {% endblock %}

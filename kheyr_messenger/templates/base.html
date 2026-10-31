@@ -1,43 +1,87 @@
 {% load static pwa %}
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="dark" data-glass="on" data-anim="on" data-wallpaper="mesh" data-bubble="pill" data-density="comfy">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#c0392b" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0d13">
     <title>{% block title %}پیام‌رسان خیر{% endblock %}</title>
     {% progressive_web_app_meta %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="preload" href="{% static 'fonts/Vazirmatn-arabic.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'css/glass.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+    {% if ui_prefs %}{{ ui_prefs|json_script:"ui-prefs" }}{% endif %}
+    <script>
+    /* pre-paint theme bootstrap — localStorage first (works on login page),
+       server-rendered prefs override + re-mirror when authenticated */
+    (function () {
+        var el = document.documentElement;
+        var srv = null;
+        try { srv = JSON.parse(document.getElementById('ui-prefs') ? document.getElementById('ui-prefs').textContent : 'null'); } catch (e) {}
+        var ls = {};
+        try { ls = JSON.parse(localStorage.getItem('kheyr_ui') || '{}'); } catch (e) {}
+        var s = Object.assign({}, ls, srv || {});
+        if (srv) { try { localStorage.setItem('kheyr_ui', JSON.stringify(srv)); } catch (e) {} }
+        var t = s.theme || 'dark';
+        if (t === 'auto') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        el.dataset.theme = t;
+        el.dataset.glass = s.glass === false ? 'off' : 'on';
+        el.dataset.anim = s.animations === false ? 'off' : 'on';
+        el.dataset.bubble = s.bubble_style || 'pill';
+        el.dataset.density = s.density || 'comfy';
+        el.dataset.wallpaper = s.wallpaper || 'mesh';
+        if (s.accent) el.style.setProperty('--accent', s.accent);
+        el.style.setProperty('--fs', (s.font_scale || 100) + '%');
+        el.style.setProperty('--blur', (s.blur_strength == null ? 18 : s.blur_strength) + 'px');
+        window.__UI_PREFS = s;
+        matchMedia('(prefers-color-scheme: light)').addEventListener('change', function (ev) {
+            if ((s.theme || 'dark') === 'auto') el.dataset.theme = ev.matches ? 'light' : 'dark';
+        });
+    })();
+    </script>
 </head>
-<body>
-    <header class="app-header">
-        <div class="header-title">
-            <a href="{% url 'room_list' %}">پیام‌رسان خیر</a>
-        </div>
+<body class="{% block body_class %}{% endblock %}">
+    <div class="wallpaper" aria-hidden="true"></div>
+    <div class="app-shell">
+        <main class="app-main" id="app-main">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+        {% block chrome %}
         {% if user.is_authenticated %}
-        <div class="header-actions">
-            <span class="username">{{ user.username }}</span>
-            <a href="{% url 'logout' %}" class="btn-small">خروج</a>
-        </div>
+        <nav class="tabbar" aria-label="ناوبری اصلی">
+            <a href="{% url 'room_list' %}" class="{% if request.resolver_match.url_name in 'room_list rooms create_group' %}active{% endif %}">
+                <svg class="icon"><use href="#i-chat"/></svg><span>گفتگوها</span>
+            </a>
+            <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}active{% endif %}">
+                <svg class="icon"><use href="#i-users"/></svg><span>مخاطبان</span>
+            </a>
+            <a href="{% url 'settings' %}" class="{% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                <svg class="icon"><use href="#i-sliders"/></svg><span>تنظیمات</span>
+            </a>
+        </nav>
         {% endif %}
-    </header>
-    <main class="app-main">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="flash flash-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+        {% endblock %}
+    </div>
+    <div class="toast-host" id="toast-host" aria-live="polite"></div>
     <script>
         window.APP = {
             me: {
                 id: {{ user.id|default:'null' }},
                 username: "{{ user.username|escapejs|default:'' }}"
-            }
+            },
+            ui: window.__UI_PREFS || {},
+            csrf: "{{ csrf_token }}"
         };
     </script>
+    {% include 'icons.html' %}
     {% block scripts %}{% endblock %}
 </body>
 </html>

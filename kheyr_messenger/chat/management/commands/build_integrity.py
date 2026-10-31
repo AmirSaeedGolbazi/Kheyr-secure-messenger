@@ -12,6 +12,7 @@ FILES = [
     'static/js/auth.js',
     'static/js/integrity.js',
     'static/js/livekit_e2ee.js',
+    'static/js/e2ee-worker.js',
     'static/js/chat.js',
     'static/sw.js',
 ]

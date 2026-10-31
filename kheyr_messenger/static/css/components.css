@@ -1,0 +1,335 @@
+/* ============================================================
+   Kheyr — component kit
+   ============================================================ */
+
+/* ---------- app shell ---------- */
+.app-shell{
+    height:100dvh;
+    display:flex; flex-direction:column;
+    padding-top:var(--safe-top);
+}
+.app-main{flex:1; overflow-y:auto; overflow-x:hidden; padding:var(--s-4); display:flex; flex-direction:column}
+.page{width:100%; max-width:1100px; margin-inline:auto}
+@media (min-width:900px){ .app-main{padding:var(--s-5)} }
+
+/* ---------- tab bar ----------
+   phone: fixed bottom strip where only the active tab shows its label;
+   tablet+: a vertical rail on the start edge, and the content shifts to clear it.
+   Both reserve space only through body:has(.tabbar), because pages that opt out
+   of chrome (room, wiped) must not inherit the inset. */
+:root{--rail-w:96px}
+.tabbar{
+    position:fixed; bottom:0; inset-inline:0; z-index:60;
+    display:flex; justify-content:space-around;
+    border-top:1px solid var(--stroke);
+    padding:var(--s-1) var(--s-2) calc(var(--s-1) + var(--safe-bottom));
+}
+[data-glass="on"] .tabbar{-webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%)}
+[data-glass="off"] .tabbar{background:var(--surface-solid)}
+.tabbar a{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:8px 16px; border-radius:var(--r-md);
+    color:var(--text-3); font-size:.78rem;
+    transition:color var(--t-fast), background var(--t-fast), transform var(--t-fast) var(--ease-spring);
+}
+.tabbar a span{display:none}
+.tabbar a.active span{display:inline}
+.tabbar a .icon{width:1.5em; height:1.5em}
+.tabbar a.active{
+    color:var(--accent);
+    background:color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.tabbar a:active{transform:scale(.92)}
+@media (max-width:899px){
+    body:has(.tabbar) .app-main{padding-bottom:calc(72px + var(--safe-bottom))}
+}
+@media (min-width:900px){
+    .tabbar{
+        inset-block:0; inset-inline-start:0; inset-inline-end:auto; width:var(--rail-w);
+        flex-direction:column; justify-content:flex-start; gap:var(--s-2);
+        border-top:0; border-inline-end:1px solid var(--stroke);
+        padding:var(--s-5) var(--s-2);
+    }
+    .tabbar a{flex-direction:column; gap:4px; font-size:.76rem; padding:10px 6px}
+    .tabbar a span{display:block}
+    body:has(.tabbar) .app-shell{padding-inline-start:var(--rail-w)}
+}
+/* the room page renders no chrome at all; let the composer own the bottom */
+.page-room .app-main{padding:0; overflow:hidden}
+.page-room .app-shell{overflow:hidden}
+
+/* ---------- cards ---------- */
+.card{
+    border-radius:var(--r-lg);
+    padding:var(--s-4);
+    margin-bottom:var(--s-4);
+    /* box-shadow:var(--shadow-2); */
+    transition:transform var(--t-med) var(--ease-spring), box-shadow var(--t-med);
+}
+[data-anim="on"] .card:hover{transform:translateY(-2px)}
+.card h2{font-size:1.02rem; margin-bottom:var(--s-3); color:var(--text-1)}
+.section-head{display:flex; align-items:center; gap:var(--s-2); margin-bottom:var(--s-3)}
+.section-head h2{margin:0}
+
+/* ---------- buttons ---------- */
+.btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    border:1px solid transparent; border-radius:var(--r-pill);
+    padding:10px 22px; font-size:.94rem; font-weight:var(--fw-semi);
+    cursor:pointer; user-select:none;
+    transition:transform var(--t-fast) var(--ease-spring), filter var(--t-fast), box-shadow var(--t-fast);
+}
+.btn:active{transform:scale(.96)}
+.btn-primary{
+    background:linear-gradient(140deg, var(--accent), color-mix(in srgb, var(--accent) 72%, black));
+    color:var(--on-accent);
+    box-shadow:0 6px 18px -8px color-mix(in srgb, var(--accent) 80%, black);
+}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-ghost{
+    background:color-mix(in srgb, var(--surface-solid) 30%, transparent);
+    border-color:var(--stroke-strong); color:var(--text-1);
+}
+.btn-ghost:hover{background:color-mix(in srgb, var(--surface-solid) 50%, transparent)}
+.btn-danger{background:color-mix(in srgb, var(--err) 18%, transparent); color:var(--err); border-color:color-mix(in srgb, var(--err) 40%, transparent)}
+.btn-sm{padding:6px 14px; font-size:.82rem}
+.btn-icon{
+    width:40px; height:40px; padding:0; border-radius:var(--r-pill);
+    display:inline-grid; place-items:center; flex:none;
+    background:color-mix(in srgb, var(--surface-solid) 26%, transparent);
+    border:1px solid var(--stroke); color:var(--text-1); cursor:pointer;
+    transition:transform var(--t-fast) var(--ease-spring), background var(--t-fast), color var(--t-fast);
+}
+.btn-icon:hover{background:color-mix(in srgb, var(--accent) 20%, transparent); color:var(--accent)}
+.btn-icon:active{transform:scale(.9)}
+.btn-icon.danger:hover{background:color-mix(in srgb, var(--err) 20%, transparent); color:var(--err)}
+.btn-icon.on{background:var(--accent); color:var(--on-accent); border-color:transparent}
+button:disabled{opacity:.45; cursor:not-allowed}
+
+/* ---------- inputs ---------- */
+.field{display:flex; flex-direction:column; gap:6px; margin-bottom:var(--s-4)}
+.field > label{font-size:.84rem; font-weight:var(--fw-semi); color:var(--text-2)}
+.input, textarea.input{
+    width:100%; padding:12px 16px;
+    background:color-mix(in srgb, var(--surface-solid) 34%, transparent);
+    border:1px solid var(--stroke-strong); border-radius:var(--r-md);
+    font-size:.98rem; line-height:1.6; color:var(--text-1);
+    transition:border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+}
+.input:focus{
+    outline:none; border-color:var(--accent);
+    box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+    background:color-mix(in srgb, var(--surface-solid) 55%, transparent);
+}
+.input::placeholder{color:var(--text-3)}
+.input-wrap{position:relative}
+.input-wrap .in-btn{
+    position:absolute; inset-inline-start:10px; top:50%; transform:translateY(-50%);
+    background:none; border:0; color:var(--text-3); cursor:pointer; padding:6px;
+}
+.hint{font-size:.78rem; color:var(--text-3)}
+.error-text{font-size:.8rem; color:var(--err)}
+
+/* strength meter */
+.strength{height:5px; border-radius:var(--r-pill); background:var(--stroke); overflow:hidden}
+.strength i{display:block; height:100%; width:0; border-radius:inherit; transition:width var(--t-med) var(--ease-out), background var(--t-med)}
+
+/* ---------- switch ---------- */
+.switch{position:relative; display:inline-flex; align-items:center; gap:10px; cursor:pointer}
+.switch input{position:absolute; opacity:0; pointer-events:none}
+.switch .track{
+    width:46px; height:27px; border-radius:var(--r-pill); flex:none;
+    background:color-mix(in srgb, var(--text-3) 35%, transparent);
+    border:1px solid var(--stroke);
+    transition:background var(--t-med) var(--ease-out);
+    position:relative;
+}
+.switch .thumb{
+    position:absolute; top:2px; inset-inline-start:2px;
+    width:21px; height:21px; border-radius:50%;
+    background:#fff; box-shadow:var(--shadow-1);
+    transition:transform var(--t-med) var(--ease-spring);
+}
+.switch input:checked + .track{background:var(--accent)}
+.switch input:checked + .track .thumb{transform:translateX(-19px)}
+html[dir="rtl"] .switch input:checked + .track .thumb{transform:translateX(-19px)}
+html[dir="ltr"] .switch input:checked + .track .thumb{transform:translateX(19px)}
+
+/* ---------- range slider ---------- */
+input[type="range"]{
+    -webkit-appearance:none; appearance:none;
+    width:100%; height:26px; background:transparent; cursor:pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track{
+    height:6px; border-radius:var(--r-pill);
+    background:linear-gradient(to left, var(--accent) var(--fill,50%), color-mix(in srgb,var(--text-3) 28%,transparent) var(--fill,50%));
+}
+input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; margin-top:-7px;
+    border-radius:50%; background:#fff; border:2px solid var(--accent);
+    box-shadow:var(--shadow-2);
+    transition:transform var(--t-fast) var(--ease-spring);
+}
+input[type="range"]::-webkit-slider-thumb:active{transform:scale(1.25)}
+
+/* ---------- segmented control ---------- */
+.segmented{
+    display:inline-flex; padding:4px; gap:4px; border-radius:var(--r-pill);
+    background:color-mix(in srgb, var(--surface-solid) 34%, transparent);
+    border:1px solid var(--stroke);
+}
+.segmented button{
+    display:inline-flex; align-items:center; justify-content:center;
+    border:0; background:transparent; color:var(--text-2);
+    padding:7px 18px; border-radius:var(--r-pill); cursor:pointer;
+    font-size:.85rem; font-weight:var(--fw-medium);
+    transition:background var(--t-fast), color var(--t-fast);
+}
+.segmented button.active{
+    background:var(--accent); color:var(--on-accent);
+    box-shadow:0 4px 12px -6px var(--accent);
+}
+/* On a phone the pill row is wider than the card, and its intrinsic max-content
+   width would widen the card instead. Let it scroll within its own box. */
+@media (max-width:899px){
+    .segmented{display:flex; width:100%; overflow-x:auto; scrollbar-width:none}
+    .segmented::-webkit-scrollbar{display:none}
+    .segmented button{flex:none}
+}
+
+/* ---------- avatar ---------- */
+.avatar{
+    width:44px; height:44px; border-radius:var(--r-pill); flex:none;
+    display:grid; place-items:center;
+    font-weight:var(--fw-bold); font-size:1rem; color:#fff;
+    background:linear-gradient(140deg, var(--ava, #6b7bff), color-mix(in srgb, var(--ava, #6b7bff) 55%, black));
+    box-shadow:var(--shadow-1), inset 0 0 0 1px rgba(255,255,255,.14);
+    position:relative;
+}
+.avatar.sm{width:34px; height:34px; font-size:.8rem}
+.avatar.lg{width:64px; height:64px; font-size:1.4rem}
+.avatar.xl{width:88px; height:88px; font-size:2rem}
+.avatar .presence{
+    position:absolute; bottom:0; inset-inline-end:0;
+    width:12px; height:12px; border-radius:50%;
+    background:var(--ok); border:2px solid var(--surface-solid);
+}
+
+/* ---------- badge / chip ---------- */
+.badge{
+    min-width:20px; height:20px; padding:0 6px; border-radius:var(--r-pill);
+    background:var(--accent); color:var(--on-accent);
+    font-size:.72rem; font-weight:var(--fw-bold);
+    display:inline-grid; place-items:center;
+}
+.badge.muted-b{background:color-mix(in srgb, var(--text-3) 45%, transparent)}
+.chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 13px; border-radius:var(--r-pill);
+    background:color-mix(in srgb, var(--surface-solid) 40%, transparent);
+    border:1px solid var(--stroke); font-size:.82rem; color:var(--text-2);
+    cursor:pointer; transition:all var(--t-fast);
+}
+.chip.active{background:color-mix(in srgb, var(--accent) 20%, transparent); color:var(--accent); border-color:color-mix(in srgb, var(--accent) 45%, transparent)}
+
+/* ---------- toasts ---------- */
+.toast-host{
+    position:fixed; top:calc(var(--safe-top) + 12px); inset-inline:0;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    z-index:1000; pointer-events:none;
+}
+.toast{
+    pointer-events:auto;
+    max-width:min(420px, 92vw);
+    padding:12px 20px; border-radius:var(--r-md);
+    font-size:.9rem; box-shadow:var(--shadow-3);
+    display:flex; gap:10px; align-items:center;
+    transform:translateY(-16px); opacity:0;
+    transition:transform var(--t-med) var(--ease-spring), opacity var(--t-med);
+}
+[data-anim="off"] .toast{transition:none}
+.toast.show{transform:none; opacity:1}
+.toast.ok{background:color-mix(in srgb, var(--ok) 22%, var(--surface-solid)); border:1px solid color-mix(in srgb, var(--ok) 45%, transparent)}
+.toast.err{background:color-mix(in srgb, var(--err) 22%, var(--surface-solid)); border:1px solid color-mix(in srgb, var(--err) 45%, transparent)}
+.toast.info{background:var(--surface-solid); border:1px solid var(--stroke-strong)}
+
+/* ---------- modal / sheet ---------- */
+.overlay{
+    position:fixed; inset:0; z-index:900;
+    background:var(--scrim);
+    display:grid; place-items:center;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity var(--t-med), visibility var(--t-med);
+}
+[data-glass="on"] .overlay{-webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
+.overlay.show{opacity:1; visibility:visible; pointer-events:auto}
+.modal{
+    width:min(520px, 94vw); max-height:86dvh; overflow-y:auto;
+    border-radius:var(--r-xl); padding:var(--s-5);
+    transform:scale(.94) translateY(12px);
+    transition:transform var(--t-med) var(--ease-spring);
+}
+[data-anim="off"] .modal{transition:none}
+.overlay.show .modal{transform:none}
+@media (max-width:639px){
+    .overlay{place-items:end center}
+    .modal{
+        width:100%; border-radius:var(--r-xl) var(--r-xl) 0 0;
+        max-height:88dvh; margin-bottom:var(--safe-bottom);
+        transform:translateY(40px);
+    }
+}
+.modal h3{margin-bottom:var(--s-3)}
+.modal-actions{display:flex; gap:var(--s-2); justify-content:flex-end; margin-top:var(--s-4)}
+
+/* ---------- context menu ---------- */
+.ctxmenu{
+    position:fixed; z-index:950; min-width:190px;
+    max-width:min(280px, calc(100vw - 20px));
+    border-radius:var(--r-md); padding:6px;
+    transform-origin:top center;
+    transform:scale(.9); opacity:0; pointer-events:none;
+    transition:transform var(--t-fast) var(--ease-spring), opacity var(--t-fast);
+}
+.ctxmenu.show{transform:scale(1); opacity:1; pointer-events:auto}
+.ctxmenu .ctx-head{
+    padding:5px 12px 9px; margin-bottom:4px;
+    font-size:.76rem; color:var(--text-3);
+    border-bottom:1px solid var(--stroke);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ctxmenu button{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:none; border:0; border-radius:var(--r-sm);
+    padding:9px 12px; color:var(--text-1); font-size:.88rem; cursor:pointer;
+    transition:background var(--t-instant);
+}
+.ctxmenu button span{line-height:1.35}
+.ctxmenu button:hover{background:color-mix(in srgb, var(--accent) 16%, transparent)}
+.ctxmenu button.danger{color:var(--err)}
+
+/* ---------- flash replacements ---------- */
+.flash{
+    padding:11px 18px; border-radius:var(--r-md); margin-bottom:var(--s-3);
+    font-size:.9rem; border:1px solid;
+    animation:pop var(--t-med) var(--ease-spring);
+}
+.flash-error{background:color-mix(in srgb, var(--err) 12%, transparent); border-color:color-mix(in srgb, var(--err) 35%, transparent); color:var(--err)}
+.flash-success{background:color-mix(in srgb, var(--ok) 12%, transparent); border-color:color-mix(in srgb, var(--ok) 35%, transparent); color:var(--ok)}
+@keyframes pop{from{transform:scale(.95); opacity:0}to{transform:none; opacity:1}}
+
+/* ---------- skeleton ---------- */
+.skeleton{
+    border-radius:var(--r-sm);
+    background:linear-gradient(100deg, var(--stroke) 40%, var(--stroke-strong) 50%, var(--stroke) 60%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s linear infinite;
+}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ---------- entrance animation helper ---------- */
+[data-anim="on"] .rise{
+    animation:rise var(--t-slow) var(--ease-out) both;
+    animation-delay:calc(var(--i, 0) * 55ms);
+}
+@keyframes rise{from{opacity:0; transform:translateY(14px)}to{opacity:1; transform:none}}

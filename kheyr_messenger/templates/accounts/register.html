@@ -1,26 +1,59 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}ثبت‌نام{% endblock %}
+{% block title %}ثبت‌نام — پیام‌رسان خیر{% endblock %}
+{% block chrome %}{% endblock %}
 {% block content %}
-<div class="card">
-    <h2>ثبت‌نام در پیام‌رسان</h2>
-    <p class="muted">
-        نام کاربری و دو رمز انتخاب کنید. پس از تأیید مدیر می‌توانید وارد شوید.<br>
-        <strong>رمز دوم</strong> رمز امنیتی است: اگر آن را وارد کنید، همه پیام‌ها و فایل‌ها برای همه پاک می‌شود.<br>
-        <strong>مهم:</strong> اگر رمز اصلی را فراموش کنید، پیام‌های قبلی برای همیشه ناخوانا می‌شوند. هیچ‌کس نمی‌تواند بازیابی کند.
-    </p>
-    <form method="post" id="register-form" autocomplete="off">
-        {% csrf_token %}
-        <label>نام کاربری<input type="text" name="username" required pattern="[a-zA-Z0-9_]+"></label>
-        <label>رمز اصلی<input type="password" id="pwd1" required minlength="6"></label>
-        <label>رمز دوم (امنیتی)<input type="password" id="pwd2" required minlength="6"></label>
-        <input type="hidden" name="auth_hash" id="auth_hash_field">
-        <input type="hidden" name="duress_hash" id="duress_hash_field">
-        <input type="hidden" name="public_key" id="public_key_field">
-        <input type="hidden" name="crypto_salt" id="crypto_salt_field">
-        <button type="submit" class="btn-primary">ثبت‌نام</button>
-    </form>
-    <p class="muted">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">ورود</a></p>
+<div class="auth-wrap">
+    <div class="auth-card glass r-xl" style="width:min(520px,100%)">
+        <div class="auth-logo">خ</div>
+        <h1>ساخت حساب جدید</h1>
+        <p class="sub">دو رمز انتخاب کنید. پس از تأیید مدیر می‌توانید وارد شوید.</p>
+        <div class="callout">
+            <svg class="icon"><use href="#i-info"/></svg>
+            <div>
+                <b style="color:var(--text-1)">رمز دوم (امنیتی):</b>
+                اگر با آن وارد شوید، همه پیام‌ها و فایل‌ها برای همه پاک می‌شود.
+                اگر رمز اصلی را فراموش کنید، پیام‌های قبلی برای همیشه ناخوانا می‌مانند — هیچ‌کس نمی‌تواند بازیابی کند.
+            </div>
+        </div>
+
+        {% if form.non_field_errors %}
+            {% for e in form.non_field_errors %}<div class="flash flash-error">{{ e }}</div>{% endfor %}
+        {% endif %}
+
+        <form method="post" id="register-form" autocomplete="off">
+            {% csrf_token %}
+            <div class="field">
+                <label for="id_username">نام کاربری</label>
+                <input class="input" type="text" name="username" id="id_username" required pattern="[a-zA-Z0-9_]+" placeholder="latin letters, digits, underscore">
+                <div class="hint">فقط حروف انگلیسی، عدد و زیرخط.</div>
+            </div>
+            <div class="field">
+                <label for="pwd1">رمز اصلی</label>
+                <div class="input-wrap">
+                    <input class="input" type="password" id="pwd1" required minlength="6" style="padding-inline-end:44px">
+                    <button type="button" class="in-btn pwd-toggle" data-target="pwd1" aria-label="نمایش رمز"><svg class="icon"><use href="#i-eye"/></svg></button>
+                </div>
+                <div class="strength" aria-hidden="true"><i id="strength-bar"></i></div>
+                <div class="hint" id="strength-text"></div>
+            </div>
+            <div class="field">
+                <label for="pwd2">رمز دوم (امنیتی)</label>
+                <div class="input-wrap">
+                    <input class="input" type="password" id="pwd2" required minlength="6" style="padding-inline-end:44px">
+                    <button type="button" class="in-btn pwd-toggle" data-target="pwd2" aria-label="نمایش رمز"><svg class="icon"><use href="#i-eye"/></svg></button>
+                </div>
+            </div>
+            <input type="hidden" name="auth_hash" id="auth_hash_field">
+            <input type="hidden" name="duress_hash" id="duress_hash_field">
+            <input type="hidden" name="public_key" id="public_key_field">
+            <input type="hidden" name="crypto_salt" id="crypto_salt_field">
+            <button type="submit" class="btn btn-primary" style="width:100%">
+                <svg class="icon"><use href="#i-lock"/></svg> ثبت‌نام و ساخت کلیدها
+            </button>
+        </form>
+        <p class="auth-foot">قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">ورود</a></p>
+    </div>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -28,5 +61,6 @@
 <script src="{% static 'js/crypto.js' %}"></script>
 <script src="{% static 'js/keydb.js' %}"></script>
 <script src="{% static 'js/integrity.js' %}"></script>
+<script src="{% static 'js/ui.js' %}"></script>
 <script src="{% static 'js/auth.js' %}"></script>
 {% endblock %}
